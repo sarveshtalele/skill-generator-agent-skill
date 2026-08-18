@@ -152,9 +152,10 @@ def check_skill(skill_path):
     for sub in ("scripts", "references", "assets"):
         subdir = os.path.join(skill_path, sub)
         if os.path.isdir(subdir):
-            for root, _, files in os.walk(subdir):
+            for root, dirs, files in os.walk(subdir):
+                dirs[:] = [d for d in dirs if d != "__pycache__"]
                 for fn in files:
-                    if fn == "__pycache__":
+                    if fn == "__pycache__" or fn.endswith((".pyc", ".pyo")):
                         continue
                     rel = os.path.relpath(os.path.join(root, fn), skill_path)
                     bundled.append(rel.replace(os.sep, "/"))

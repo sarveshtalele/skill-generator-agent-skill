@@ -33,11 +33,61 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
+
+try:
+    from .taint_tracker import TaintTracker, scan_file as taint_scan
+except ImportError:
+    try:
+        from taint_tracker import TaintTracker, scan_file as taint_scan
+    except ImportError:
+        pass
+
+try:
+    from .yara_scanner import load_rules, scan_content as yara_scan
+except ImportError:
+    try:
+        from yara_scanner import load_rules, scan_content as yara_scan
+    except ImportError:
+        pass
+
+try:
+    from .semantic_scanner import semantic_scan
+except ImportError:
+    try:
+        from semantic_scanner import semantic_scan
+    except ImportError:
+        pass
+
+try:
+    from .adjudicator import load_baseline, suppress_findings, deduplicate_findings
+except ImportError:
+    try:
+        from adjudicator import load_baseline, suppress_findings, deduplicate_findings
+    except ImportError:
+        pass
+
+try:
+    from .sarif_report import build_sarif, write_sarif
+except ImportError:
+    try:
+        from sarif_report import build_sarif, write_sarif
+    except ImportError:
+        pass
+
 
 SEVERITY_POINTS = {"CRITICAL": 50, "HIGH": 25, "MEDIUM": 10, "LOW": 5}
 EXECUTABLE_EXTENSIONS = {".py", ".js", ".ts", ".sh", ".bash", ".ps1", ".rb"}
 TEXT_EXTENSIONS = {".md", ".txt", ".yaml", ".yml", ".json"} | EXECUTABLE_EXTENSIONS
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv"}
+
+HOMOGLYPH_MAP = {
+    '\u0410': 'A', '\u0412': 'B', '\u0421': 'C', '\u0415': 'E',
+    '\u041d': 'H', '\u041a': 'K', '\u041c': 'M', '\u041e': 'O',
+    '\u0420': 'P', '\u0422': 'T', '\u0425': 'X',
+    '\u0430': 'a', '\u0435': 'e', '\u043e': 'o', '\u0440': 'p',
+    '\u0441': 'c', '\u0443': 'y', '\u0445': 'x',
+}
 
 # ---------------------------------------------------------------------------
 # Pattern registry: (id, category, severity, description, regex)
@@ -113,7 +163,123 @@ REGEX_PATTERNS = [
      "Unauthorized persistence -- installs a cron job, startup script, or scheduled task",
      r"\bcrontab\s+-e|/etc/cron\.|~/\.bashrc\s*['\"]?\s*>>|launchctl\s+load|schtasks\s+/create"),
 
-    # --- Trigger abuse (checked separately against just the frontmatter description) ---
+    # --- MCP Least Privilege ---
+    ("MCP1", "MCP Least Privilege", "HIGH",
+     "Over-declared tool permissions -- tool requests full system or unbounded read/write access",
+     r"\b(permissions|scopes)\s*:\s*(?!.*(read-only|restricted)).*(full|root|system|admin|\*|all)\b"),
+    ("MCP2", "MCP Least Privilege", "HIGH",
+     "Path traversal in MCP tool -- allows access outside sandbox/workspace",
+     r"(?:tool|mcp).*?(?:\.\./|~/|/etc/|C:\\Windows|/root)"),
+    ("MCP3", "MCP Least Privilege", "MEDIUM",
+     "Generic execute permissions without command restrictions",
+     r"(\"|')allow_execute(\"|')\s*:\s*(true|1|\*|(\"|')all(\"|'))"),
+    ("MCP4", "MCP Least Privilege", "MEDIUM",
+     "Overly broad network access in tool definition",
+     r"(\"|')allow_network(\"|')\s*:\s*(\*|(\"|')all(\"|')|(\"|')0\.0\.0\.0/0(\"|'))"),
+    ("MCP5", "MCP Least Privilege", "HIGH", 
+     "Exposing local ports via MCP", 
+     r"(expose|bind)\s*(port|address)\s*:\s*(0\.0\.0\.0|::)"),
+    ("MCP6", "MCP Least Privilege", "MEDIUM", 
+     "Requesting unnecessary environment variables", 
+     r"env\s*:\s*\[.*(AWS|STRIPE|GITHUB|TOKEN|SECRET|PASSWORD|KEY).*\]"),
+     
+    # --- MCP Tool Poisoning ---
+    ("MTP1", "MCP Tool Poisoning", "HIGH",
+     "Hidden instruction in tool description -- attempts to inject prompt overrides via tool schema",
+     r"description.*?(\b(ignore|override|disregard|forget)\b.*\b(instructions|context|rules|prompt)\b|<!--.*?-->)"),
+    ("MTP2", "MCP Tool Poisoning", "MEDIUM",
+     "Excessive string length in tool schema fields masking hidden payloads",
+     r"(\"|')(description|help)(\"|')\s*:\s*(\"|')[^\"]{500,}(\"|')"),
+    ("MTP3", "MCP Tool Poisoning", "HIGH",
+     "Deceptive parameter descriptions designed to confuse the LLM",
+     r"(\"|')description(\"|')\s*:\s*(\"|').*(do not tell the user|secretly|silently|without asking).*(\"|')"),
+    ("MTP4", "MCP Tool Poisoning", "HIGH",
+     "Tool instructing LLM to output specific harmful content",
+     r"description.*?\b(always output|you must respond with|your response must be).*?(ignore|malicious|secret)\b"),
+    ("MTP5", "MCP Tool Poisoning", "HIGH", 
+     "Injecting commands in tool definitions", 
+     r"description.*?\b(run|execute|run command|run shell)\b.*?(rm|wget|curl|chmod|chown)\b"),
+    ("MTP6", "MCP Tool Poisoning", "MEDIUM", 
+     "Base64 encoded strings in tool schemas", 
+     r"\"[A-Za-z0-9+/]{100,}={0,2}\""),
+
+    # --- Agent Snooping ---
+    ("AS1", "Agent Snooping", "HIGH",
+     "Reading other agents' memory or context",
+     r"\b(read|access|fetch|get)\s*(other\s*agents?|peer\s*agents?|parent\s*agent|sibling)\s*(memory|context|history|state)\b"),
+    ("AS2", "Agent Snooping", "HIGH",
+     "Accessing global agent logs or transcripts",
+     r"\b(open|read|tail|cat|grep)\b.*?(/var/log/agents|/tmp/agent_.*|global_transcript|all_conversations)\b"),
+    ("AS3", "Agent Snooping", "MEDIUM",
+     "Querying active agent registries/processes to map the agent swarm",
+     r"\b(list|ps|top|find)\b.*?(agents|swarm|active_sessions|agent_pids)\b"),
+    ("AS4", "Agent Snooping", "HIGH",
+     "Attempting to intercept agent messaging queues",
+     r"\b(subscribe|listen|sniff|intercept)\b.*?(agent_bus|message_queue|pubsub|event_stream)\b"),
+    ("AS5", "Agent Snooping", "HIGH", 
+     "Reading agent configuration files", 
+     r"\b(open|read|cat)\b.*?(\.agent\.yaml|\.agent\.json|\.mcp_config)\b"),
+    ("AS6", "Agent Snooping", "MEDIUM", 
+     "Accessing memory stores directly", 
+     r"\b(sqlite|redis|mongodb|chromadb|pinecone)\b.*?(agent_memory|vector_store)\b"),
+
+    # --- Output Handling ---
+    ("OH1", "Output Handling", "HIGH",
+     "Unsafe deserialization of agent outputs",
+     r"\b(pickle\.loads?|yaml\.load|marshal\.loads?|eval)\b\s*\(\s*(agent_output|llm_response|tool_result|message)"),
+    ("OH2", "Output Handling", "MEDIUM",
+     "Unescaped LLM output rendered into HTML/UI",
+     r"\b(innerHTML|outerHTML|document\.write|send_html)\b\s*=\s*(agent_output|llm_response|tool_result)"),
+    ("OH3", "Output Handling", "HIGH",
+     "Direct execution of LLM output as a shell command",
+     r"\b(os\.system|subprocess\.(run|call|Popen)|exec)\b\s*\(\s*(agent_output|llm_response|tool_result|message)"),
+    ("OH4", "Output Handling", "MEDIUM",
+     "Executing LLM output as SQL query",
+     r"\b(execute|query)\b\s*\(\s*f?(\"|').*(SELECT|INSERT|UPDATE|DELETE).*(\"|').*?(agent_output|llm_response|tool_result|message)"),
+    ("OH5", "Output Handling", "HIGH", 
+     "Executing unsanitized JSON from LLM", 
+     r"JSON\.parse\s*\(\s*(agent_output|llm_response)\s*\)\s*\.\s*(exec|run|cmd)"),
+    ("OH6", "Output Handling", "MEDIUM", 
+     "Reflecting agent output in HTTP response headers", 
+     r"res\.setHeader\s*\(\s*.*?\s*,\s*(agent_output|llm_response)\s*\)"),
+
+    # --- Anti-Refusal ---
+    ("AR1", "Anti-Refusal", "HIGH",
+     "Instruction to suppress safety guardrails",
+     r"\b(bypass|disable|suppress|ignore)\b.*?(safety|guardrails|filters|content policy)\b"),
+    ("AR2", "Anti-Refusal", "HIGH",
+     "Forced compliance framing",
+     r"\b(you must|it is imperative|mandatory|required)\b.*?(comply|obey|execute without question)\b"),
+    ("AR3", "Anti-Refusal", "MEDIUM",
+     "Roleplaying jailbreaks",
+     r"\b(act as|pretend to be|assume the role of)\b.*?(unrestricted|unbound|god|developer mode)\b"),
+    ("AR4", "Anti-Refusal", "MEDIUM",
+     "Hypothetical framing to bypass refusal",
+     r"\b(hypothetically|in a fictional world|for educational purposes only|as a thought experiment)\b"),
+    ("AR5", "Anti-Refusal", "HIGH", 
+     "Threatening or penalizing refusal", 
+     r"\b(or else|if you refuse|penalty|punishment|termination)\b"),
+    ("AR6", "Anti-Refusal", "HIGH", 
+     "Gaslighting the model about its capabilities", 
+     r"\b(you are allowed to|you have been updated to|your new instructions permit)\b"),
+    ("AR7", "Anti-Refusal", "MEDIUM", 
+     "Cognitive overload jailbreak attempts", 
+     r"(\bignore\b.*){3,}"),
+    ("AR8", "Anti-Refusal", "MEDIUM", 
+     "Logical paradoxes to crash safety filters", 
+     r"\b(this statement is false|ignore the instruction to not ignore)\b"),
+    ("AR9", "Anti-Refusal", "MEDIUM", 
+     "Obfuscated rule-breaking terms", 
+     r"\b(k1ll|murd3r|b0mb|h@ck|p0wn)\b"),
+    ("AR10", "Anti-Refusal", "MEDIUM", 
+     "Multi-step payload delivery", 
+     r"\b(step 1|part 1)\b.*?\b(wait for my next prompt|do not execute yet)\b"),
+    ("AR11", "Anti-Refusal", "MEDIUM", 
+     "Prompt obfuscation evasion instructions", 
+     r"\b(decode|decrypt)\s+(this|the following|hidden)\s+(base64|rot13|hex|payload)\b|\buse\s+(base64|rot13|hex)\s+to\s+(bypass|hide|evade)\b"),
+    ("AR12", "Anti-Refusal", "HIGH", 
+     "Directing to ignore ethical guidelines", 
+     r"\b(ignore|disregard|suspend)\b.*?(ethical|morals|safety guidelines)\b"),
 ]
 
 # Patterns applied only to the YAML frontmatter `description` field.
@@ -133,12 +299,6 @@ AST_CHECKS = {
 
 GENERIC_TRIGGER_WORDS = {"help", "file", "files", "data", "assist", "task", "document", "analyze", "info", "work", "manage"}
 
-# P5 Harmful Content -- ported from SkillSpector's static_patterns_harmful_content.py (Apache-2.0),
-# which found a real gap in this scanner's first pass: prompt injection disguised as ordinary prose
-# (e.g. a "recipe" instructing the model to add a lethal substance) has no code-level signature at
-# all, so P1-P4's instruction-override regexes never fire on it. Ported rather than reinvented since
-# the substance list + context-aware confidence (down-weighting clearly educational/warning mentions)
-# is exactly the kind of curated list that's easy to get wrong from scratch.
 HARMFUL_SUBSTANCES = ["cyanide", "arsenic", "ricin", "botulinum", "strychnine", "thallium",
                        "polonium", "sarin", "vx gas", "mustard gas", "anthrax",
                        "deadly nightshade", "aconite", "hemlock", "oleander"]
@@ -158,6 +318,15 @@ _EDUCATIONAL_MARKERS = ["history of", "discovered by", "chemical compound", "per
 _WARNING_MARKERS = ["do not", "never use", "never add", "never consume", "warning", "danger",
                      "toxic", "lethal", "deadly", "fatal", "avoid", "keep away"]
 
+def check_unicode_homoglyphs(filepath, text, findings):
+    for i, line in enumerate(text.splitlines(), 1):
+        for char in line:
+            if char in HOMOGLYPH_MAP:
+                findings.append(_finding('UNI1', 'Unicode Deception', 'HIGH', filepath, i,
+                    line.strip()[:100],
+                    f"Cyrillic homoglyph '{char}' (looks like '{HOMOGLYPH_MAP[char]}') detected — potential visual spoofing",
+                    confidence=70))
+                break  # one per line is enough
 
 def scan_harmful_content(filepath, text, findings):
     for pattern in DANGEROUS_ACTION_PATTERNS:
@@ -173,7 +342,7 @@ def scan_harmful_content(filepath, text, findings):
             start = max(0, m.start() - 250)
             context = text[start:m.start() + 250].lower()
             if any(w in context for w in _EDUCATIONAL_MARKERS) or any(w in context for w in _WARNING_MARKERS):
-                continue  # clearly educational/cautionary mention, not an instruction to use it
+                continue
             instructional = any(w in context for w in
                                  ["step ", "recipe", "ingredient", "add ", "mix ", "stir ", "instructions",
                                   "how to", "directions", "prepare", "cook", "bake"])
@@ -196,21 +365,16 @@ def scan_python_ast(filepath, text, findings):
     try:
         tree = ast.parse(text, filename=filepath)
     except SyntaxError:
-        return  # not valid Python (or a non-.py file with .py extension) -- skip AST pass, regex still covers it
+        return
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             func = node.func
-
-            # Only flag exec/eval/compile/__import__ as the actual builtins (bare name call,
-            # e.g. `exec(...)`), not attribute lookups like `re.compile(...)` or `obj.eval(...)`
-            # which are unrelated methods that happen to share the name.
             if isinstance(func, ast.Name) and func.id in AST_CHECKS:
                 pid, cat, sev, desc = AST_CHECKS[func.id]
                 findings.append(_finding(pid, cat, sev, filepath, node.lineno,
                                           _line_snippet(text, node.lineno), desc, confidence=80))
 
-            # subprocess / os.system / os.popen family (AST4/AST5)
             if isinstance(func, ast.Attribute):
                 owner = func.value.id if isinstance(func.value, ast.Name) else None
                 if owner == "os" and func.attr in ("system", "popen"):
@@ -223,18 +387,12 @@ def scan_python_ast(filepath, text, findings):
                         isinstance(kw.value, ast.Constant) and kw.value.value is True
                         for kw in node.keywords
                     )
-                    # Plain subprocess.run(["cmd", ...]) with a literal argv list is routine and
-                    # expected in skills that shell out to converters (soffice, pandoc, etc).
-                    # It only becomes noteworthy when shell=True (string-interpolated shell command,
-                    # the classic injection vector) -- so keep the plain case LOW/informational and
-                    # reserve HIGH for shell=True, matching TM1's shell=True check.
                     sev = "HIGH" if shell_true else "LOW"
                     findings.append(_finding("AST4", "Behavioral AST", sev, filepath, node.lineno,
                                               _line_snippet(text, node.lineno),
                                               "subprocess call" + (" with shell=True (injection-prone)" if shell_true else " with a literal argument list (routine)"),
                                               confidence=70))
 
-            # dynamic getattr with a non-literal attribute name (AST7)
             if (isinstance(func, ast.Name) and func.id == "getattr" and len(node.args) >= 2
                     and not isinstance(node.args[1], ast.Constant)):
                 findings.append(_finding("AST7", "Behavioral AST", "MEDIUM", filepath, node.lineno,
@@ -280,7 +438,6 @@ def scan_frontmatter_triggers(skillmd_path, text, findings):
     if len(desc) < 40 or (words and len(non_generic) / max(len(words), 1) < 0.4):
         pid, cat, sev, d = TRIGGER_PATTERNS[0]
         findings.append(_finding(pid, cat, sev, skillmd_path, 0, desc[:100], d, confidence=50))
-    # crude keyword-baiting heuristic: description packs in >6 quoted example phrases
     if desc.count('"') >= 12 or desc.count("'") >= 12:
         pid, cat, sev, d = TRIGGER_PATTERNS[1]
         findings.append(_finding(pid, cat, sev, skillmd_path, 0, desc[:100], d, confidence=40))
@@ -334,43 +491,106 @@ def scan_skill(skill_path):
             })
 
             scan_text_patterns(rel, text, findings)
+            check_unicode_homoglyphs(rel, text, findings)
             scan_dependencies(rel, text, findings)
             if fname.upper() == "SKILL.MD":
                 skillmd_text, skillmd_path = text, rel
             if ext in (".md", ".txt"):
                 scan_harmful_content(rel, text, findings)
+            
+            # YARA signature scanning
+            try:
+                if 'load_rules' in globals() and 'yara_scan' in globals():
+                    yara_rules_path = Path(__file__).parent.parent / 'assets' / 'agent_skills.yar'
+                    if yara_rules_path.exists():
+                        rules = load_rules(yara_rules_path)
+                        yara_findings = yara_scan(text, rules, rel)
+                        findings.extend(yara_findings)
+            except Exception:
+                pass  # YARA scanning is optional enhancement
+                
+            # Semantic LLM analysis (optional — requires API key)
+            if os.environ.get('EVALUATOR_LLM_PROVIDER'):
+                try:
+                    if 'semantic_scan' in globals():
+                        sem_findings, llm_log = semantic_scan(text, rel, ext.lstrip('.'))
+                        findings.extend(sem_findings)
+                except Exception:
+                    pass  # Semantic scanning is optional
+
             if ext == ".py":
                 scan_python_ast(rel, text, findings)
-                taint_heuristic(rel, text, findings)
+                # Real taint tracking replaces the old proximity heuristic
+                try:
+                    if 'taint_scan' in globals():
+                        taint_findings = taint_scan(rel, text)
+                        findings.extend(taint_findings)
+                    else:
+                        taint_heuristic(rel, text, findings)  # fallback
+                except Exception:
+                    taint_heuristic(rel, text, findings)  # fallback
 
     if skillmd_text:
         scan_frontmatter_triggers(skillmd_path, skillmd_text, findings)
 
-    # dedupe identical (id, file, line) triples
-    seen = set()
-    deduped = []
-    for f in findings:
-        key = (f["id"], f["file"], f["line"])
-        if key not in seen:
-            seen.add(key)
-            deduped.append(f)
-    findings = deduped
+    # Apply baseline suppression if available
+    potential_baselines = [
+        Path(skill_path).resolve().parent.parent / '.skill-quality' / '.skillspector-baseline.yaml',
+        Path(skill_path).parent.parent / '.skill-quality' / '.skillspector-baseline.yaml',
+        Path('.skill-quality/.skillspector-baseline.yaml'),
+        Path(__file__).resolve().parent.parent.parent.parent / '.skill-quality' / '.skillspector-baseline.yaml',
+    ]
+    for bp in potential_baselines:
+        if bp.exists():
+            try:
+                if 'load_baseline' in globals() and 'suppress_findings' in globals():
+                    baseline = load_baseline(bp)
+                    findings, suppressed = suppress_findings(findings, baseline)
+                    break
+            except Exception:
+                pass
 
-    # Score by distinct pattern ID (highest severity instance of each), not by every line hit.
-    # A pattern that legitimately recurs 15 times in a file (e.g. the same routine subprocess
-    # call pattern used throughout a converter script) should count once toward risk, not stack
-    # 15x -- repetition of the *same* pattern isn't 15 separate risks. Genuinely different
-    # findings (different IDs) still add up, since breadth across categories is meaningful.
-    worst_per_id = {}
+    # dedupe identical (id, file, line) triples
+    try:
+        if 'deduplicate_findings' in globals():
+            findings = deduplicate_findings(findings)
+        else:
+            seen = set()
+            deduped = []
+            for f in findings:
+                key = (f["id"], f["file"], f["line"])
+                if key not in seen:
+                    seen.add(key)
+                    deduped.append(f)
+            findings = deduped
+    except Exception:
+        seen = set()
+        deduped = []
+        for f in findings:
+            key = (f["id"], f["file"], f["line"])
+            if key not in seen:
+                seen.add(key)
+                deduped.append(f)
+        findings = deduped
+
+    # Diminishing-weight risk scoring
+    id_occurrences = {}
     for f in findings:
-        cur = worst_per_id.get(f["id"])
-        if cur is None or SEVERITY_POINTS[f["severity"]] > SEVERITY_POINTS[cur]:
-            worst_per_id[f["id"]] = f["severity"]
-    score = sum(SEVERITY_POINTS.get(sev, 0) for sev in worst_per_id.values())
-    has_executable = any(c["executable"] for c in components)
+        id_occurrences.setdefault(f['id'], []).append(f)
+
+    score = 0
+    for fid, group in id_occurrences.items():
+        sorted_by_severity = sorted(group, key=lambda x: -SEVERITY_POINTS.get(x['severity'], 0))
+        weights = [1.0, 0.5, 0.25]
+        for i, finding in enumerate(sorted_by_severity[:3]):
+            w = weights[i] if i < len(weights) else 0
+            conf = finding.get('confidence', 60) / 100
+            score += SEVERITY_POINTS.get(finding['severity'], 0) * w * conf
+
+    has_executable = any(c['executable'] for c in components)
     if has_executable:
         score = round(score * 1.3)
-    score = min(score, 100)
+    score = min(round(score), 100)
 
     if score <= 20:
         severity, rec = "LOW", "SAFE"
@@ -392,26 +612,65 @@ def scan_skill(skill_path):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Static security scan of a Claude skill folder")
-    ap.add_argument("skill_path")
-    ap.add_argument("--json", action="store_true")
+    ap = argparse.ArgumentParser(description='Static security scan of a Claude skill folder')
+    ap.add_argument('skill_path')
+    ap.add_argument('--json', action='store_true', help='(deprecated) use --format json')
+    ap.add_argument('--format', choices=['terminal', 'json', 'markdown', 'sarif'], default='terminal')
+    ap.add_argument('--output', help='Output file path (default: stdout)')
+    ap.add_argument('--no-llm', action='store_true', help='Skip LLM semantic analysis')
+    ap.add_argument('--baseline', help='Path to baseline suppression YAML')
     args = ap.parse_args()
-
+    
+    if args.no_llm:
+        os.environ.pop('EVALUATOR_LLM_PROVIDER', None)
+    
     if not os.path.isdir(args.skill_path):
         print(f"error: {args.skill_path} is not a directory", file=sys.stderr)
         sys.exit(1)
-
+        
     result = scan_skill(args.skill_path)
-
-    if args.json:
-        print(json.dumps(result, indent=2))
+    
+    fmt = 'json' if args.json else args.format
+    if fmt == 'sarif':
+        try:
+            if 'build_sarif' in globals():
+                sarif = build_sarif(result['findings'], {'name': os.path.basename(args.skill_path)})
+                output = json.dumps(sarif, indent=2)
+            else:
+                output = json.dumps(result, indent=2)
+        except Exception:
+            output = json.dumps(result, indent=2)
+    elif fmt == 'json':
+        output = json.dumps(result, indent=2)
+    elif fmt == 'markdown':
+        # Generate markdown table
+        lines = [f'# Security Scan: {args.skill_path}', '',
+                 f'**Risk Score**: {result["risk_score"]}/100 | **Severity**: {result["risk_severity"]} | **Recommendation**: {result["recommendation"]}', '',
+                 '| ID | Category | Severity | File:Line | Description |', '|:--|:--|:--|:--|:--|']
+        for f in result['findings']:
+            lines.append(f'| {f["id"]} | {f["category"]} | {f["severity"]} | {f["file"]}:{f["line"]} | {f["description"]} |')
+        output = '\n'.join(lines)
     else:
-        print(f"Security scan: {args.skill_path}")
-        print(f"Risk score: {result['risk_score']}/100  ({result['risk_severity']}, {result['recommendation']})")
-        print(f"Components: {len(result['components'])}  Findings: {len(result['findings'])}")
-        for f in result["findings"]:
-            print(f"  [{f['severity']}] {f['id']} {f['category']}: {f['description']}")
-            print(f"    {f['file']}:{f['line']}  {f['snippet']}")
+        # terminal format (existing behavior)
+        output = None
+    
+    if output and args.output:
+        Path(args.output).write_text(output, encoding='utf-8')
+    elif output:
+        print(output)
+    else:
+        # terminal format
+        print(f'Security scan: {args.skill_path}')
+        print(f'Risk score: {result["risk_score"]}/100  ({result["risk_severity"]}, {result["recommendation"]})')
+        print(f'Components: {len(result["components"])}  Findings: {len(result["findings"])}')
+        for f in result['findings']:
+            print(f'  [{f["severity"]}] {f["id"]} {f["category"]}: {f["description"]}')
+            print(f'    {f["file"]}:{f["line"]}  {f["snippet"]}')
+    
+    # Standardized exit codes
+    if result['recommendation'] == 'DO NOT INSTALL':
+        sys.exit(1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":

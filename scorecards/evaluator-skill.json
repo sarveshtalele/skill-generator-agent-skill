@@ -1,51 +1,293 @@
 {
   "skill_name": "evaluator-skill",
-  "overall_score": 92.6,
-  "status": "PASS",
-  "passed": true,
-  "eval_mode": "static_heuristic",
+  "overall_score": 96.0,
+  "gate_decision": "PASS",
   "dimensions": {
-    "specification": 100.0,
-    "content": 90.0,
-    "functional": 100.0,
-    "skill_lift": 75.0,
-    "trigger": 90.9,
-    "reliability": 90.0,
-    "efficiency": 85.0,
+    "spec_compliance": 100.0,
+    "content_quality": 100.0,
+    "functional_correctness": 100.0,
+    "skill_lift": 78.57142857142858,
+    "trigger_quality": 92.0,
+    "reliability": 100.0,
+    "efficiency": 100.0,
     "security": 100.0
   },
-  "gate_decision": {
-    "status": "PASS",
-    "passed": true,
-    "blocking_reasons": [],
-    "warning_reasons": []
+  "structural": {
+    "skill_name": "evaluator-skill",
+    "structural_score": 100,
+    "issues": [],
+    "stats": {
+      "skillmd_lines": 150,
+      "referenced_files": [
+        "assets/agent_skills.yar",
+        "references/content_rubric.md",
+        "references/schemas.md",
+        "references/scoring_formulas.md",
+        "references/security_patterns.md",
+        "scripts/adjudicator.py",
+        "scripts/assertion_engine.py",
+        "scripts/baseline_runner.py",
+        "scripts/batch_scan.py",
+        "scripts/generate_html_report.py",
+        "scripts/run_evaluation.py",
+        "scripts/sarif_report.py",
+        "scripts/scoring_engine.py",
+        "scripts/security_scan.py",
+        "scripts/semantic_scanner.py",
+        "scripts/structural_check.py",
+        "scripts/taint_tracker.py",
+        "scripts/trace_capture.py",
+        "scripts/yara_scanner.py"
+      ],
+      "missing_referenced_files": [],
+      "bundled_files_not_referenced": []
+    }
   },
-  "security_summary": {
-    "critical": 0,
-    "high": 0,
-    "medium": 0,
-    "low": 0,
-    "false_positives": 1,
-    "total_findings": 1
+  "security": {
+    "skill_path": "skills/evaluator-skill",
+    "components": [
+      {
+        "file": "manifest.yaml",
+        "type": "yaml",
+        "lines": 26,
+        "executable": false
+      },
+      {
+        "file": "SKILL.md",
+        "type": "md",
+        "lines": 150,
+        "executable": false
+      },
+      {
+        "file": "skill-card.json",
+        "type": "json",
+        "lines": 70,
+        "executable": false
+      },
+      {
+        "file": "evals/evals.json",
+        "type": "json",
+        "lines": 63,
+        "executable": false
+      },
+      {
+        "file": "references/schemas.md",
+        "type": "md",
+        "lines": 164,
+        "executable": false
+      },
+      {
+        "file": "references/security_patterns.md",
+        "type": "md",
+        "lines": 106,
+        "executable": false
+      },
+      {
+        "file": "references/content_rubric.md",
+        "type": "md",
+        "lines": 100,
+        "executable": false
+      },
+      {
+        "file": "references/scoring_formulas.md",
+        "type": "md",
+        "lines": 98,
+        "executable": false
+      },
+      {
+        "file": "scripts/trace_capture.py",
+        "type": "py",
+        "lines": 97,
+        "executable": true
+      },
+      {
+        "file": "scripts/run_evaluation.py",
+        "type": "py",
+        "lines": 327,
+        "executable": true
+      },
+      {
+        "file": "scripts/sarif_report.py",
+        "type": "py",
+        "lines": 114,
+        "executable": true
+      },
+      {
+        "file": "scripts/batch_scan.py",
+        "type": "py",
+        "lines": 148,
+        "executable": true
+      },
+      {
+        "file": "scripts/baseline_runner.py",
+        "type": "py",
+        "lines": 115,
+        "executable": true
+      },
+      {
+        "file": "scripts/generate_html_report.py",
+        "type": "py",
+        "lines": 210,
+        "executable": true
+      },
+      {
+        "file": "scripts/structural_check.py",
+        "type": "py",
+        "lines": 235,
+        "executable": true
+      },
+      {
+        "file": "scripts/assertion_engine.py",
+        "type": "py",
+        "lines": 90,
+        "executable": true
+      },
+      {
+        "file": "scripts/taint_tracker.py",
+        "type": "py",
+        "lines": 136,
+        "executable": true
+      },
+      {
+        "file": "scripts/yara_scanner.py",
+        "type": "py",
+        "lines": 124,
+        "executable": true
+      },
+      {
+        "file": "scripts/adjudicator.py",
+        "type": "py",
+        "lines": 112,
+        "executable": true
+      },
+      {
+        "file": "scripts/semantic_scanner.py",
+        "type": "py",
+        "lines": 200,
+        "executable": true
+      },
+      {
+        "file": "scripts/scoring_engine.py",
+        "type": "py",
+        "lines": 97,
+        "executable": true
+      },
+      {
+        "file": "scripts/security_scan.py",
+        "type": "py",
+        "lines": 678,
+        "executable": true
+      }
+    ],
+    "findings": [],
+    "risk_score": 0,
+    "risk_severity": "LOW",
+    "recommendation": "SAFE"
   },
-  "security_findings": [
+  "assertions": [
     {
-      "category": "Dangerous Code AST",
-      "severity": "MEDIUM",
-      "file": "/home/runner/work/agentkills-test/agentkills-test/skills/evaluator-skill/scripts/run_evaluation.py",
-      "line_number": 31,
-      "description": "Subprocess Invocation via subprocess.run",
-      "snippet": "  28 |         str(output_dir),\n  29 |     ]\n  30 |     \n  31 >     proc = subprocess.run(cmd, capture_output=True, text=True)\n  32 |     scorecard_json = output_dir / f\"{skill_name}.json\"\n  33 |     scorecard_md = output_dir / f\"{skill_name}.md\"\n  34 |     "
+      "assertion": "contains:csv-analyzer",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:Specification",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:SkillSpector",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(quality|score|pass|gate)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Produces a comprehensive quality scorecard covering all 8 evaluation dimensions",
+      "passed": true,
+      "evidence": "Matched 7/7 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "contains:SARIF",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(finding|rule|severity|security)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "contains:SkillSpector",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:benchmark",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:lift",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(baseline|with.skill|without.skill|delta)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "contains:trace",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:timing",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(tool.call|duration|token)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "contains:skill-creator",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:evaluator-skill",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(pass|warn|block)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
     }
   ],
-  "regression": {
-    "skill_name": "evaluator-skill",
-    "has_baseline": true,
-    "overall_delta": 0.0,
-    "functional_delta": 0.0,
-    "security_delta": 0.0,
-    "trigger_delta": 0.0,
-    "regressions": [],
-    "has_critical_regression": false
-  }
+  "baseline_lift": 0.35,
+  "mode": "standalone_full_ast"
 }

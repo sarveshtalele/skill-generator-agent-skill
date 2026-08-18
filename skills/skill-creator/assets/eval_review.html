@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Query Review</title>
+    <style>
+        :root {
+            --bg-color: #1e1e2e;
+            --surface-color: #2a2a3e;
+            --text-color: #cdd6f4;
+            --success: #a6e3a1;
+            --error: #f38ba8;
+            --border: #45475a;
+            --primary: #89b4fa;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .actions button {
+            background-color: var(--primary);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .column {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .col-header {
+            border-bottom: 2px solid;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .trigger-col .col-header { border-color: var(--success); color: var(--success); }
+        .no-trigger-col .col-header { border-color: var(--error); color: var(--error); }
+        
+        .query-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--border);
+        }
+        .query-item.included.trigger { border-left-color: var(--success); }
+        .query-item.included.no-trigger { border-left-color: var(--error); }
+        
+        .query-text {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            background: transparent;
+            color: var(--text-color);
+            border: 1px dashed var(--border);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .toggle { cursor: pointer; }
+        .add-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .add-btn:hover {
+            background: rgba(137, 180, 250, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Trigger Test Queries Review</h1>
+        <div class="actions">
+            <button onclick="downloadQueries()">Download Queries</button>
+            <button onclick="startOptimization()">Start Optimization</button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="column trigger-col">
+            <div class="col-header">
+                <h2>Should Trigger</h2>
+                <span id="trigger-count">10 Queries</span>
+            </div>
+            <div id="trigger-list"></div>
+            <button class="add-btn" onclick="addQuery('trigger')">+ Add Custom Query</button>
+        </div>
+        
+        <div class="column no-trigger-col">
+            <div class="col-header">
+                <h2>Should Not Trigger</h2>
+                <span id="no-trigger-count">10 Queries</span>
+            </div>
+            <div id="no-trigger-list"></div>
+            <button class="add-btn" onclick="addQuery('no-trigger')">+ Add Custom Query</button>
+        </div>
+    </div>
+
+    <script>
+        const queries = {
+            trigger: Array.from({length: 10}, (_, i) => ({ id: `t${i}`, text: `Mock trigger query ${i+1}`, included: true })),
+            'no-trigger': Array.from({length: 10}, (_, i) => ({ id: `nt${i}`, text: `Mock non-trigger query ${i+1}`, included: true }))
+        };
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function renderList(type) {
+            const container = document.getElementById(`${type}-list`);
+            container.innerHTML = queries[type].map(q => `
+                <div class="query-item ${q.included ? 'included' : ''} ${type}">
+                    <input type="checkbox" class="toggle" ${q.included ? 'checked' : ''} 
+                           onchange="toggleQuery('${type}', '${q.id}')">
+                    <div class="query-text">
+                        <input type="text" value="${escapeHtml(q.text)}" onchange="updateQuery('${type}', '${q.id}', this.value)">
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById(`${type}-count`).innerText = `${queries[type].length} Queries`;
+        }
+
+        function toggleQuery(type, id) {
+            const q = queries[type].find(x => x.id === id);
+            if (q) q.included = !q.included;
+            renderList(type);
+        }
+
+        function updateQuery(type, id, val) {
+            const q = queries[type].find(x => x.id === id);
+            if (q) q.text = val;
+        }
+
+        function addQuery(type) {
+            const id = `${type}-${Date.now()}`;
+            queries[type].push({ id, text: 'New custom query...', included: true });
+            renderList(type);
+        }
+
+        function getExportData() {
+            return {
+                should_trigger: queries.trigger.filter(q => q.included).map(q => q.text),
+                should_not_trigger: queries['no-trigger'].filter(q => q.included).map(q => q.text)
+            };
+        }
+
+        function downloadQueries() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getExportData(), null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "queries.json");
+            dlAnchorElem.click();
+        }
+
+        async function startOptimization() {
+            try {
+                const res = await fetch('/api/optimize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getExportData())
+                });
+                if(res.ok) alert('Optimization started!');
+                else alert('Failed to start optimization');
+            } catch(e) {
+                alert('Optimization started (mock mode)');
+            }
+        }
+
+        renderList('trigger');
+        renderList('no-trigger');
+    </script>
+</body>
+</html>

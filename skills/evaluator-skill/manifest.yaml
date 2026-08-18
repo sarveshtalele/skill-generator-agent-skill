@@ -1,7 +1,7 @@
 name: evaluator-skill
 display_name: Evaluator Skill
-version: "1.0.0"
-description: "Audits agent skills on quality (best practices, progressive disclosure, functional lift, trigger F1) and security (NVIDIA SkillSpector 17-category vulnerability taxonomy), producing scored Markdown & JSON reports."
+version: "2.0.0"
+description: "Audits agent skills on quality (specification compliance, progressive disclosure, functional correctness, baseline lift, trigger F1) and security (NVIDIA SkillSpector 68-pattern AST taint tracking, YARA signatures, Unicode deception, and optional semantic analysis), producing scored Markdown, JSON, and SARIF reports."
 author: "Sarvesh Talele"
 license: MIT
 category: code-analysis
@@ -10,6 +10,7 @@ tags:
   - sdlc
   - agent-skills
   - security-audit
+  - ragas-evaluation
 runtime:
   engine: python
   min_version: "3.8"

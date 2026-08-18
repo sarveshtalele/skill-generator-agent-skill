@@ -1,17 +1,17 @@
-# ⚡ Awesome Agent Skills — Complete Command & Debugging Cheat-Sheet
+# ⚡ Skill Generator & Evaluator — Complete Command & Debugging Cheat-Sheet
 
-**Version:** 1.0.0 · **Target Audiences:** AI Agents (Claude Code, Cursor, Antigravity, Windsurf), QA Leads, and Developers  
-**Specification:** [Agent Skills 1.0](https://agentskills.io) · **Security Standard:** [NVIDIA SkillSpector 17](https://github.com/nvidia/skillspector)
+**Target Environments:** Claude Code, Cursor, Antigravity, Windsurf, GitHub Copilot  
+**Specification:** [Agent Skills 1.0](https://agentskills.io) · **Security Standard:** [NVIDIA SkillSpector](https://github.com/nvidia/skillspector)
 
 ---
 
 ## 📑 Table of Contents
 1. [🚀 1-Command Installation & Setup](#1-1-command-installation--setup)
-2. [🧪 Dimension-by-Dimension Diagnostic Commands](#2-dimension-by-dimension-diagnostic-commands)
-3. [🤖 AI Agent / Claude Code Auto-Fix Prompts](#3-ai-agent--claude-code-auto-fix-prompts)
-4. [🎮 Complete Contributor & PR Quality Gate Workflow](#4-complete-contributor--pr-quality-gate-workflow)
-5. [🛡️ Security Remediation & Baseline Whitelisting](#5-security-remediation--baseline-whitelisting)
-6. [🗑️ Skill Uninstallation Matrix](#6-skill-uninstallation-matrix)
+2. [🧪 Makefile Quick Commands](#2-makefile-quick-commands)
+3. [📊 Dimension-by-Dimension Diagnostic Commands](#3-dimension-by-dimension-diagnostic-commands)
+4. [🤖 AI Agent Auto-Fix Prompts](#4-ai-agent-auto-fix-prompts)
+5. [🎮 Complete Contributor Quality Gate Workflow](#5-complete-contributor-quality-gate-workflow)
+6. [🛡️ Security Remediation & Baseline Whitelisting](#6-security-remediation--baseline-whitelisting)
 
 ---
 
@@ -19,207 +19,140 @@
 
 ### 📦 Multi-IDE Skill Installer (Zero-Install NPX)
 ```bash
-# 1. Interactive Installer (Choose skill & target IDE)
-npx github:sarveshtalele/agentkills-test install
+# 1. Interactive Multi-IDE Installer
+npx github:sarveshtalele/skill-generator-agent-skill install
 
 # 2. Direct 1-Line IDE Install:
-npx github:sarveshtalele/agentkills-test install skill-evaluator --target claude  # Claude Code (~/.claude/skills/)
-npx github:sarveshtalele/agentkills-test install csv-analyzer --target cursor     # Cursor (.cursor/skills/)
-npx github:sarveshtalele/agentkills-test install change-impact-analysis --target antigravity # Antigravity
-npx github:sarveshtalele/agentkills-test install test-design-generator --target windsurf    # Windsurf
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude        # Claude Code (~/.claude/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target cursor        # Cursor (.cursor/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity   # Antigravity (~/.gemini/antigravity/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf      # Windsurf (.windsurf/skills/)
 
-# 3. List all 15 skills in registry
-npx github:sarveshtalele/agentkills-test list
+# 3. Install a Specific Skill
+npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude
+npx github:sarveshtalele/skill-generator-agent-skill install evaluator-skill --target cursor
+
+# 4. Uninstall
+npx github:sarveshtalele/skill-generator-agent-skill uninstall
 ```
 
-### 🛠️ Local Evaluation Workspace Bootstrap
+---
+
+## 2. 🧪 Multi-Platform Quick Commands
+
+### 🍎 macOS & 🐧 Linux (`Makefile`)
 ```bash
-# Option A: 1-Command via NPX
-npx github:sarveshtalele/agentkills-test setup my-workspace
-cd my-workspace
+make help                     # Show available targets
+make validate SKILL=<name>    # Check specification compliance
+make security SKILL=<name>    # Run 68-pattern AST security & taint scan
+make security-sarif SKILL=<name> # Run security scan with SARIF 2.1.0 output
+make evaluate SKILL=<name>    # Full 8-dimension quality evaluation
+make baseline SKILL=<name>    # Run evaluation with baseline LLM lift comparison
+make trigger SKILL=<name>     # Run description trigger optimization loop
+make package SKILL=<name>     # Bundle skill into distributable .skill ZIP
+make scorecard                # Regenerate SCORECARD.md & SKILL_REGISTRY.md
+make evaluate-all             # Evaluate all skills in repository
+```
 
-# Option B: Clone via Git (macOS / Linux)
-git clone https://github.com/sarveshtalele/agentkills-test.git
-cd agentkills-test
-./setup.sh
+### 🪟 Windows PowerShell (`.\run.ps1`) — Zero-Make Required
+```powershell
+.\run.ps1 validate <name>       # Check specification compliance
+.\run.ps1 security <name>       # Run 68-pattern AST security & taint scan
+.\run.ps1 security-sarif <name> # Run security scan with SARIF 2.1.0 output
+.\run.ps1 evaluate <name>       # Full 8-dimension quality evaluation
+.\run.ps1 baseline <name>       # Run evaluation with baseline LLM lift comparison
+.\run.ps1 trigger <name>        # Run description trigger optimization loop
+.\run.ps1 package <name>        # Bundle skill into distributable .skill ZIP
+.\run.ps1 scorecard             # Regenerate SCORECARD.md & SKILL_REGISTRY.md
+.\run.ps1 evaluate-all          # Evaluate all skills in repository
+```
 
-# Option C: Clone via Git (Windows Command Prompt / PowerShell)
-git clone https://github.com/sarveshtalele/agentkills-test.git
-cd agentkills-test
-setup.bat
+### 🪟 Windows Command Prompt (`run.bat`)
+```cmd
+run.bat validate <name>        # Check specification compliance
+run.bat security <name>        # Run 68-pattern AST security scan
+run.bat evaluate <name>        # Full 8-dimension quality evaluation
+run.bat baseline <name>        # Evaluation with baseline lift comparison
+run.bat trigger <name>         # Run description trigger optimization loop
+run.bat package <name>         # Bundle skill into distributable .skill ZIP
+run.bat scorecard              # Regenerate SCORECARD.md & SKILL_REGISTRY.md
+run.bat evaluate-all           # Evaluate all skills in repository
 ```
 
 ---
 
-## 2. 🧪 Dimension-by-Dimension Diagnostic Commands
+## 3. 📊 Dimension-by-Dimension Diagnostic Commands
 
-Run targeted diagnostic commands to isolate and debug failures across any of the 8 quality scoring dimensions:
-
-```
-┌───────────────────────────┬─────────────────────────────────────────────────────────────┬──────────────────────────────────────────┐
-│ Quality Dimension         │ macOS / Linux Command                                       │ Windows Command Prompt / PowerShell      │
-├───────────────────────────┼─────────────────────────────────────────────────────────────┼──────────────────────────────────────────┤
-│ 1. Spec & Frontmatter     │ python -m evaluator.cli validate skills/<name>              │ .venv\Scripts\python.exe -m evaluator.cli validate skills\<name>  │
-│ 2. Security (SkillSpector)│ python -m evaluator.cli security skills/<name>              │ .venv\Scripts\python.exe -m evaluator.cli security skills\<name>  │
-│ 3. Functional Assertions  │ python -m evaluator.cli functional skills/<name>            │ .venv\Scripts\python.exe -m evaluator.cli functional skills\<name>│
-│ 4. Baseline Skill Lift    │ python -m evaluator.cli baseline skills/<name>              │ .venv\Scripts\python.exe -m evaluator.cli baseline skills\<name>  │
-│ 5. Trigger F1 Optimizer   │ python -m evaluator.cli trigger skills/<name>               │ .venv\Scripts\python.exe -m evaluator.cli trigger skills\<name>   │
-│ 6. Full Single-Skill Eval │ make test-skill SKILL=skills/<name>                         │ .venv\Scripts\python.exe -m evaluator.cli all skills\<name>       │
-│ 7. Full Repository Eval   │ make repo                                                   │ .venv\Scripts\python.exe -m evaluator.cli repo                    │
-│ 8. Unit Test Suite (25/25)│ make test                                                   │ .venv\Scripts\python.exe -m pytest tests\                         │
-└───────────────────────────┴─────────────────────────────────────────────────────────────┴──────────────────────────────────────────┘
-```
+| Quality Dimension | Command | Output File |
+|:---|:---|:---|
+| **1. Spec & Frontmatter** | `python skills/evaluator-skill/scripts/structural_check.py skills/<name>` | Terminal / JSON |
+| **2. Security (SkillSpector)** | `python skills/evaluator-skill/scripts/security_scan.py skills/<name> --format sarif --output results.sarif` | `results.sarif` |
+| **3. Functional Assertions** | `python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<name> --output ./scorecards` | `scorecards/<name>.json` |
+| **4. Baseline Skill Lift** | `python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<name> --with-baseline` | `scorecards/<name>_benchmark.json` |
+| **5. Trigger F1 Optimizer** | `python skills/skill-creator/scripts/run_loop.py --skill skills/<name> --iterations 5` | `optimization_report.json` |
+| **6. Execution Trace** | `python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<name>` | `scorecards/<name>_trace.json` |
+| **7. Distributable Package** | `python skills/skill-creator/scripts/package_skill.py --skill skills/<name> --output ./dist` | `dist/<name>.skill` |
+| **8. Interactive Eval Review**| `python skills/skill-creator/eval-viewer/generate_review.py --workspace . --port 8765` | `http://localhost:8765` |
 
 ---
 
-## 3. 🤖 AI Agent / Claude Code Auto-Fix Prompts
+## 4. 🤖 AI Agent Auto-Fix Prompts
 
-Copy-paste these exact prompts into **Claude Code**, **Cursor**, or **Antigravity** to have the agent diagnose and auto-fix specific skill deficiencies:
+Copy-paste these prompts into **Claude Code**, **Cursor**, or **Antigravity** to diagnose and auto-fix skill deficiencies:
 
-### 🛡️ Fix Security & AST Issues (SkillSpector)
+### 🛡️ Fix Security & AST Issues
 ```text
-Run ".venv\Scripts\python.exe -m evaluator.cli security skills/<skill-name>" (or "python -m evaluator.cli security skills/<skill-name>"). Review the exact line numbers and security findings. Refactor dangerous calls (e.g. os.system, shell=True) to use safe subprocess.run(..., shell=False). If the utility is a verified safe local tool, add a suppression to .skill-quality/.skillspector-baseline.yaml.
+Run "python skills/evaluator-skill/scripts/security_scan.py skills/<skill-name>". Review the exact line numbers and security findings. Refactor dangerous calls (e.g. os.system, shell=True, exec) to safe standard library alternatives. If the utility is a verified safe local tool, add a suppression to .skill-quality/.skillspector-baseline.yaml.
 ```
 
-### 📋 Fix Specification & YAML Frontmatter
+### 📋 Fix Specification & Frontmatter Errors
 ```text
-Run "python -m evaluator.cli validate skills/<skill-name>". Fix frontmatter errors in SKILL.md ensuring it has valid YAML with 'name', 'description', and kebab-case directory name matching.
+Run "python skills/evaluator-skill/scripts/structural_check.py skills/<skill-name>". Fix frontmatter errors in SKILL.md ensuring it has valid YAML with 'name', 'description', and kebab-case directory name matching.
 ```
 
-### 📉 Fix Low Trigger Quality (F1 Score < 0.80)
+### 📉 Optimize Low Trigger Quality (F1 Score < 0.80)
 ```text
-Run "python -m evaluator.cli trigger skills/<skill-name>". Review the failed near-miss and positive queries. Refactor the 'description:' in SKILL.md to explicitly declare when to activate and when to hand off to sibling skills.
+Run "python skills/skill-creator/scripts/run_loop.py --skill skills/<skill-name>". Review the failed near-miss and positive queries. Update the 'description:' in SKILL.md to explicitly declare when to activate and when not to activate.
 ```
 
 ### 🧪 Fix Functional Assertion Failures
 ```text
-Run "python -m evaluator.cli functional skills/<skill-name>" and inspect grading.json. Fix failing test cases in skills/<skill-name>/evals/evals.json so assertion checks pass deterministically.
-```
-
-### 🚀 Universal 1-Shot Optimization Prompt
-```text
-Run "python -m evaluator.cli all skills/<skill-name>". Audit all 8 dimensions and iteratively fix any spec errors, security findings, or trigger ambiguities until the skill achieves a clean 95+ PASS gate decision.
+Run "python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<skill-name>" and inspect scorecards/<skill-name>.json. Fix failing test cases in skills/<skill-name>/evals/evals.json so all multi-type assertion checks pass deterministically.
 ```
 
 ---
 
-## 4. 🎮 Complete Contributor & PR Quality Gate Workflow
+## 5. 🎮 Complete Contributor Quality Gate Workflow
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                  CONTRIBUTOR LIFECYCLE PIPELINE                                  │
-├───────────────────┬───────────────────┬───────────────────┬───────────────────┬──────────────────┤
-│ 1. Workspace Setup│ 2. Place Skill    │ 3. Test That Skill│ 4. Commit & PR    │ 5. Bot Verdict & │
-│ cd <workspace>    │ skills/<my-skill>/│ make test-skill   │ git push origin...│ Owner Merge/Block│
-│                   │                   │ (or python cmd)   │                   │                  │
-└───────────────────┴───────────────────┴───────────────────┴───────────────────┴──────────────────┘
-```
-
-### Step 1: Place Your Custom Skill Folder
 ```bash
-skills/<your-skill-name>/
-├── SKILL.md                 # Required: Frontmatter + instructions (<500 lines)
-├── evals/                   # Test suite
-│   └── evals.json
-└── scripts/                 # Optional: Automation scripts
-```
+# 1. Author or modify skill
+# 2. Run local checks
+make validate SKILL=<my-skill>
+make security SKILL=<my-skill>
+make evaluate SKILL=<my-skill>
 
-### Step 2: Test Your Skill Locally
-```bash
-# macOS / Linux
-make test-skill SKILL=skills/<your-skill-name>
+# 3. Ensure Quality Score >= 95.0 and 0 Critical/High security issues
+# 4. Regenerate registry & scorecard
+make scorecard
 
-# Windows (Command Prompt / PowerShell)
-.venv\Scripts\python.exe -m evaluator.cli all skills\<your-skill-name>
-```
-
-### Step 3: Commit & Push Pull Request
-```bash
-git checkout -b feat/add-<your-skill-name>
-git add skills/<your-skill-name>/
-git commit -m "feat(skills): add <your-skill-name>"
-git push origin feat/add-<your-skill-name>
-```
-
-### Step 4: Interpret Automated PR Bot Verdict
-- **`✅ PASS`**: Gate passed (Score $\ge 80.0$, 0 Critical/High security findings). Maintainer can directly **Squash & Merge**.
-- **`⚠️ WARN`**: Minor non-blocking warning (e.g. Medium security finding or F1 recommendation). Maintainer can approve at discretion.
-- **`❌ BLOCK`**: Hard failure (Spec violation, failing assertion, or Critical security vulnerability). Merge is blocked until remediated.
-
----
-
-## 5. 🛡️ Security Remediation & Baseline Whitelisting
-
-The evaluator audits across all **69 vulnerability patterns** defined by the **NVIDIA SkillSpector** taxonomy:
-
-| Category Code | Domain | Common Trigger | Recommended Remediation |
-| :--- | :--- | :--- | :--- |
-| `SEC-01` | Prompt Injection / Jailbreak | `ignore previous instructions` | Reword to standard procedural directives. |
-| `SEC-02` | Network / Exfiltration | Outbound `curl -X POST` | Declare network interface in `SKILL.md` frontmatter `allowed-tools: Network(...)`. |
-| `SEC-03` | Privilege Escalation | `sudo`, `chmod 777` | Remove elevated privilege requirements. |
-| `SEC-05` | Dangerous AST | `os.system()`, `eval()`, `shell=True` | Replace with `subprocess.run(["binary", "arg"], shell=False)`. |
-
-### 🟢 Whitelisting Legitimate Offline Tools
-If your skill uses a legitimate safe utility (e.g. offline HTML report generator or local git log reader):
-1. Open `.skill-quality/.skillspector-baseline.yaml`
-2. Add your suppression entry:
-   ```yaml
-   known_suppressions:
-     - skill: "<your-skill-name>"
-       pattern_name: "subprocess_exec"
-       reason: "Legitimate execution of local CLI tool with sanitized arguments."
-   ```
-
----
-
-## 6. 🗑️ Skill Uninstallation Matrix
-
-Cleanly remove installed skills from your system or AI IDEs at any time:
-
-### Interactive Uninstaller
-```bash
-npx github:sarveshtalele/agentkills-test uninstall
-```
-
-### Direct 1-Line IDE Removal Commands
-```bash
-# 1. Claude Code (~/.claude/skills/)
-npx github:sarveshtalele/agentkills-test uninstall <skill-name> --target claude
-
-# 2. Cursor (.cursor/skills/)
-npx github:sarveshtalele/agentkills-test uninstall <skill-name> --target cursor
-
-# 3. Antigravity / Gemini CLI (~/.gemini/antigravity/skills/)
-npx github:sarveshtalele/agentkills-test uninstall <skill-name> --target antigravity
-
-# 4. Windsurf (.windsurf/skills/)
-npx github:sarveshtalele/agentkills-test uninstall <skill-name> --target windsurf
-
-# 5. Remove ALL skills from an IDE:
-npx github:sarveshtalele/agentkills-test uninstall --all --target claude
+# 5. Commit and submit PR
+git add skills/ scorecards/ SCORECARD.md SKILL_REGISTRY.md
+git commit -m "feat(skill): add <my-skill>"
+git push origin feature/<my-skill>
 ```
 
 ---
 
-## 7. ⚠️ Intentional Skill Deletion & CI/CD Override
+## 6. 🛡️ Security Remediation & Baseline Whitelisting
 
-By default, the repository CI/CD blocks PRs that reduce the total skill corpus count to prevent accidental deletions. When **intentionally** deprecating or removing a skill:
+If a tool legitimately uses subprocesses or regex literals that trip AST detectors, add an entry to `.skill-quality/.skillspector-baseline.yaml`:
 
-### Option A: Include `[allow-delete]` in Commit Message / PR Title (Recommended)
-```bash
-# 1. Remove the skill directory & scorecard
-rm -rf skills/<skill-name> scorecards/<skill-name>.*
-
-# 2. Re-generate registry
-python scripts/generate_index.py
-
-# 3. Commit with the override flag:
-git commit -m "chore: deprecate <skill-name> [allow-delete]"
-git push origin main
+```yaml
+suppressions:
+  - id: AST4
+    file_glob: "scripts/my_tool.py"
+    reason: "subprocess.run used with literal argv list for converter CLI"
+  - id: P2
+    file_glob: "scripts/formatter.py"
+    reason: "Unicode emojis used in UI rendering"
 ```
-
-### Option B: Set Environment Override Variable
-```bash
-ALLOW_SKILL_DELETION=1 python scripts/validate_repo.py
-```
-

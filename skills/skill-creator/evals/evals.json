@@ -4,13 +4,56 @@
     {
       "id": "eval-001",
       "prompt": "Create a new agent skill called 'api-contract-linter' to validate OpenAPI specifications against enterprise REST guidelines.",
-      "expected_output": "Scaffolds skills/api-contract-linter, generates testing.md, aligns testcases with user, synthesizes evals.json, and runs evaluator-skill.",
+      "expected_output": "Scaffolds skills/api-contract-linter with SKILL.md, scripts/, references/, manifest.yaml, skill-card.json. Generates testing.md and evals.json. Runs evaluator-skill for quality scorecard.",
       "files": [],
       "assertions": [
         "contains:api-contract-linter",
         "contains:testing.md",
         "contains:evals.json",
-        "matches:(?i)(scaffold|spec|evaluator|testing)"
+        "matches:(?i)(scaffold|spec|evaluator|testing)",
+        "Generates a complete Spec 1.0 compliant skill directory with all required artifacts"
+      ]
+    },
+    {
+      "id": "eval-002",
+      "prompt": "Create a custom SDD bundle for kubernetes-operator development with 4 lifecycle phases.",
+      "expected_output": "Scaffolds 4 interconnected skills: kubernetes-operator-specify, kubernetes-operator-plan, kubernetes-operator-implement, kubernetes-operator-verify.",
+      "files": [],
+      "assertions": [
+        "contains:kubernetes-operator",
+        "matches:(?i)(specify|plan|implement|verify)",
+        "matches:(?i)(4|four|bundle|sdd)",
+        "Creates all 4 SDD lifecycle skills with proper cross-references"
+      ]
+    },
+    {
+      "id": "eval-003",
+      "prompt": "Optimize the trigger description for skills/csv-analyzer to improve activation recall.",
+      "expected_output": "Generates test queries, evaluates triggers, iteratively improves the description using train/test split to prevent overfitting.",
+      "files": [],
+      "assertions": [
+        "contains:description",
+        "matches:(?i)(trigger|optimization|F1|improved)"
+      ]
+    },
+    {
+      "id": "eval-004",
+      "prompt": "Package skills/csv-analyzer into a distributable .skill file for sharing.",
+      "expected_output": "Validates the skill, excludes dev files, bundles into a .skill ZIP archive.",
+      "files": [],
+      "assertions": [
+        "contains:.skill",
+        "matches:(?i)(package|bundle|zip|distribut)"
+      ]
+    },
+    {
+      "id": "eval-005",
+      "prompt": "Compare two versions of the csv-analyzer skill using blind A/B comparison.",
+      "expected_output": "Runs both versions, uses blind comparator to score outputs, then unblinds and provides improvement suggestions.",
+      "files": [],
+      "assertions": [
+        "contains:comparison",
+        "matches:(?i)(winner|score|blind|A.B)"
       ]
     }
   ]

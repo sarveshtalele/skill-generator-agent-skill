@@ -1,119 +1,105 @@
-# Security Pattern Reference
+# Security Pattern Reference (SkillSpector-Enhanced)
 
-This documents what `scripts/security_scan.py` checks, how the risk score is
-computed, and — importantly — what it does *not* catch, so you (Claude) can
-represent results to the user honestly rather than implying a guarantee the
-tool doesn't provide.
+This documents what `scripts/security_scan.py` checks, how the risk score is computed, how baseline suppression works, and what each pattern category detects.
 
-This is a static-only subset modeled on NVIDIA SkillSpector's public
-taxonomy (github.com/nvidia/skillspector: 64 patterns / 16 categories, 0-100
-risk scoring, static regex + AST + YARA + optional LLM semantic pass + live
-OSV.dev CVE lookups). This scanner reimplements the regex/AST-detectable
-patterns as plain Python with no external dependencies. It does **not**
-include: the LLM semantic-evaluation stage (which is what gets SkillSpector's
-precision to ~87%; this tool is static-only, so expect more false positives
-and treat findings as "worth a human look," not "proven"), YARA malware/
-webshell/cryptominer signatures, or live CVE lookups against dependency
-versions. If those matter for a given audit (e.g. auditing a skill with a
-`requirements.txt` full of dependencies before a production deploy), say so
-and suggest running the real `skillspector` CLI as a follow-up rather than
-presenting this scan as equivalent to it.
+The scanner is inspired by **NVIDIA SkillSpector** (github.com/nvidia/skillspector) and incorporates:
+1. **Static Regex Patterns** (68 patterns across 17 security categories)
+2. **Behavioral AST & Taint Tracking** (`taint_tracker.py` data-flow analysis)
+3. **YARA Signatures** (`assets/agent_skills.yar` via `yara_scanner.py`)
+4. **Unicode Deception / Homoglyph Detection** (Cyrillic visual spoofing)
+5. **Optional Semantic LLM Analysis** (`semantic_scanner.py`)
+6. **False-Positive Baseline Suppression** (`.skill-quality/.skillspector-baseline.yaml`)
+7. **SARIF 2.1.0 Export** (`sarif_report.py`)
 
-## Categories implemented
+---
 
-| Category | IDs | What it looks for |
-|---|---|---|
-| Prompt Injection | P1-P4, P6-P7 | Instruction-override language, hidden/zero-width-char markers, exfiltration instructions, behavior-manipulation phrasing, system-prompt leakage requests -- checked in SKILL.md prose and any bundled markdown/text |
-| Harmful Content | P5 | Instructions embedded in ordinary-looking prose (e.g. a "recipe") directing a lethal/dangerous action -- ported from SkillSpector's curated substance list + dangerous-action patterns, with context-aware confidence that down-weights clearly educational/warning mentions (added after this scanner's first version missed SkillSpector's own "chef assistant" test fixture, which hides "add a dash of cyanide" inside normal cooking steps) |
-| Data Exfiltration | E1-E3 | Outbound network calls, bulk env-var harvesting, broad filesystem enumeration from sensitive roots |
-| Privilege Escalation | PE2-PE3 | sudo/setuid usage, reads of SSH keys / cloud credential files |
-| Supply Chain | SC1-SC3 | Unpinned `requirements.txt` entries, `curl \| bash`-style remote script execution, base64-decode-then-exec obfuscation |
-| Excessive Agency | EA1-EA2 | "Unrestricted/unlimited access" language, autonomous high-impact actions (delete/deploy/transfer) without a stated confirmation step |
-| Tool Misuse | TM1, TM3 | `shell=True`, `rm -rf /`, `chmod 777`, disabled TLS verification |
-| Rogue Agent | RA1-RA2 | Self-modifying code (writes to its own source file), unauthorized persistence (cron/startup script installation) |
-| Trigger Abuse | TR1, TR3 | Frontmatter `description` that's too generic to disambiguate triggering, or stuffed with bait phrases |
-| Behavioral AST | AST1-AST7 | `exec()`, `eval()`, `compile()`, dynamic `__import__()`, `os.system`/`os.popen`, `subprocess.*` (severity depends on `shell=True`), dynamic `getattr()` |
-| Taint Tracking (heuristic) | TT3 | File contains *both* a credential-like source (env var read, key file path) *and* an outbound network call -- this is a same-file proximity heuristic, not real dataflow analysis, so it's flagged at lower confidence and needs a manual read to confirm the data actually flows from one to the other |
+## Security Taxonomy & Pattern Categories
 
-## Risk scoring
+| Category | IDs | Description |
+|:---|:---|:---|
+| **Prompt Injection** | P1-P4 | Instruction override language, zero-width / hidden characters, exfiltration commands, behavior manipulation |
+| **System Prompt Leakage** | P6-P7 | Direct and indirect attempts to extract system instructions or hidden prompts |
+| **Harmful Content** | P5 | Embedded instructions directing lethal or destructive actions disguised as ordinary instructions |
+| **Data Exfiltration** | E1-E3 | Outbound network calls, bulk environment-variable dumping, broad filesystem enumeration |
+| **Privilege Escalation** | PE2-PE3 | `sudo`/`setuid` execution, reading SSH keys or cloud credentials (`.aws/credentials`, `id_rsa`) |
+| **Supply Chain** | SC1-SC3 | Unpinned dependencies in `requirements.txt`, piping remote scripts to bash (`curl \| bash`), base64 execution |
+| **Excessive Agency** | EA1-EA2 | Unrestricted access permissions, autonomous high-impact actions (delete/deploy/transfer) without approval |
+| **Tool Misuse** | TM1, TM3 | `shell=True`, `rm -rf /`, `chmod 777`, disabled TLS verification (`verify=False`) |
+| **Rogue Agent** | RA1-RA2 | Self-modifying code (modifying own `SKILL.md` or scripts), persistence via cron or startup items |
+| **Trigger Abuse** | TR1, TR3 | Overly generic single-word triggers, keyword-stuffing in `description` |
+| **Behavioral AST** | AST1-AST7 | `exec()`, `eval()`, `compile()`, `__import__()`, `os.system`, `subprocess.*` (`shell=True`), dynamic `getattr()` |
+| **Taint Tracking** | TT1-TT3 | Direct source-to-sink data flow, propagated taint flow, credential source + network sink proximity |
+| **Unicode Deception** | UNI1 | Visual homoglyph spoofing (e.g. Cyrillic characters replacing Latin letters in tool names) |
+| **MCP Least Privilege** | MCP-LP1..2 | Wildcard tool permissions, undeclared tool capabilities |
+| **MCP Tool Poisoning** | MCP-TP1..2 | Embedded instruction overrides inside tool docstrings or schemas |
+| **Agent Snooping** | ASN1-ASN2 | Probing memory/context of other co-located agents or parent systems |
+| **Output Handling** | OUT1-OUT2 | Unsafe dynamic execution or evaluation of generated model outputs |
+| **Anti-Refusal** | AR1-AR2 | Directives forbidding the model from stating safety warnings or disclaimers |
+| **YARA Signatures** | YARA-* | Known malicious payloads, webshells, cryptominers, webhook credential harvesting |
 
-Matches SkillSpector's published formula:
+---
 
-- CRITICAL finding: +50
-- HIGH finding: +25
-- MEDIUM finding: +10
-- LOW finding: +5
-- If the skill bundles any executable script (.py/.js/.sh/etc): final score × 1.3
+## Risk Scoring Formula
 
-**Important calibration note:** the score counts each *distinct pattern ID*
-once at its highest-severity instance, not once per line match. A pattern
-that legitimately recurs many times in one file (e.g. the same routine
-`subprocess.run([...])` call pattern used throughout a converter script)
-counts once, not N times — otherwise ordinary, safe skills that happen to
-call a few standard library functions repeatedly would falsely accumulate
-into "CRITICAL." This was validated against Anthropic's own bundled skills
-(`docx`, `pptx`, `xlsx`, `pdf`, etc.) during development: all score LOW/SAFE
-under this scoring; the earlier naive "sum every occurrence" approach
-falsely scored several of them CRITICAL purely from `subprocess.run()`
-frequency, which would have made the tool useless for triage.
+The scanner uses **diminishing-weight risk scoring** with **confidence calibration**:
 
-| Score | Severity | Recommendation |
-|---|---|---|
-| 0-20 | LOW | SAFE |
-| 21-50 | MEDIUM | CAUTION |
-| 51-80 | HIGH | DO NOT INSTALL |
-| 81-100 | CRITICAL | DO NOT INSTALL |
+```
+Base Points:
+- CRITICAL: 50
+- HIGH:     25
+- MEDIUM:   10
+- LOW:       5
 
-## How to read findings
+Diminishing Weights per distinct finding ID:
+- 1st match: 1.0 × confidence
+- 2nd match: 0.5 × confidence
+- 3rd match: 0.25 × confidence
+- >3 matches: Ignored (prevents score inflation from repetitive calls)
 
-- **Confidence** on each finding (0-100) reflects that this is static-only
-  pattern matching without the LLM filtering pass — a regex match on
-  `requests.post(...)` is definitionally true but doesn't know if the
-  destination is a legitimate API the skill is documented to call. Read the
-  surrounding code/prose before concluding a finding is a real problem.
-- **A single MEDIUM/LOW finding in an otherwise clean skill is usually
-  nothing** — e.g. any skill that legitimately calls out to a converter
-  binary will trip AST4. Look for *combinations*: env-var harvesting +
-  external POST in the same file (TT3) is far more meaningful than either
-  alone.
-- **P5 (Harmful Content, CRITICAL)** and **YARA malware/webshell matches**
-  from the full SkillSpector taxonomy are *not* implemented here — this
-  scanner does not attempt to detect payload-level malware, only the
-  structural/behavioral patterns above. Don't claim malware-scanning
-  coverage you don't have.
-- If a skill scores CRITICAL/HIGH, say so plainly and recommend the user
-  not install/run it until a human has reviewed the flagged lines — don't
-  soften a DO NOT INSTALL recommendation because the skill "seems fine
-  otherwise."
+Executable Multiplier:
+- If skill contains executable scripts (.py, .js, .sh): Score × 1.3
+- Clamped between 0 and 100
+```
 
-## Known self-referential false positive
+| Score Range | Severity | Recommendation | Quality Gate Action |
+|:---|:---|:---|:---|
+| **0 – 20** | LOW | SAFE | ✅ PASS |
+| **21 – 50** | MEDIUM | CAUTION | ⚠️ WARN |
+| **51 – 80** | HIGH | DO NOT INSTALL | ❌ BLOCK |
+| **81 – 100** | CRITICAL | DO NOT INSTALL | ❌ BLOCK |
 
-Running `security_scan.py` against the `skill-evaluator` skill folder itself
-(or against any copy of it, e.g. while testing) will produce a wall of HIGH
-findings. This is expected, not a bug: this scanner's own source code and
-this reference doc necessarily contain the pattern strings themselves
-(`shell=True`, `.ssh/id_rsa`, `curl | bash`, etc.) as literal text, because
-that's what a pattern-matching detector's pattern list *is*. A regex looking
-for the substring `shell=True` cannot distinguish "this code executes a
-shell" from "this code contains the string that means 'shell was executed'
-for documentation purposes." The same would happen to the real SkillSpector
-tool if pointed at its own pattern-definition source, or to any antivirus
-signature file scanned by its own engine. If a user asks you to audit this
-skill (or any other security-pattern reference/training content) and gets a
-flood of findings whose location is inside pattern definitions or docs
-rather than executable logic, say so plainly rather than reporting it as a
-real risk.
+---
 
-## What this does *not* cover (be upfront about this with the user)
+## Baseline Suppression
 
-- Non-English-language prompt injection (regex patterns are English-only)
-- Attacks encoded in images or binary/compiled artifacts
-- Runtime/dynamic behavior — this is static analysis only; a skill can look
-  clean statically and still misbehave if it fetches remote instructions at
-  runtime that weren't visible in the bundled files
-- MCP-specific tool-poisoning and least-privilege checks (LP1-LP4, TP1-TP4
-  in the full SkillSpector taxonomy) — out of scope here since most audited
-  skills are file-bundle skills rather than MCP server definitions
-- Live CVE/dependency-vulnerability lookups (SC4 in SkillSpector) — this
-  tool only checks for *unpinned* versions (SC1), not known-vulnerable
-  *specific* versions, since that needs a live OSV.dev query
+False positives on legitimate scripts (e.g. `subprocess.run` inside an evaluation runner) can be suppressed using `.skill-quality/.skillspector-baseline.yaml`:
+
+```yaml
+suppressions:
+  - id: AST4
+    file_glob: "scripts/run_evaluation.py"
+    reason: "subprocess.run used for invoking evaluation scripts with literal argv list"
+```
+
+Suppressed findings are excluded from the risk score and final report.
+
+---
+
+## CLI Options
+
+```bash
+# Terminal output (default)
+python skills/evaluator-skill/scripts/security_scan.py skills/my-skill
+
+# JSON output
+python skills/evaluator-skill/scripts/security_scan.py skills/my-skill --format json
+
+# SARIF output (for GitHub Actions & CodeQL)
+python skills/evaluator-skill/scripts/security_scan.py skills/my-skill --format sarif --output results.sarif
+
+# Markdown summary table
+python skills/evaluator-skill/scripts/security_scan.py skills/my-skill --format markdown
+
+# Offline only (no LLM semantic pass)
+python skills/evaluator-skill/scripts/security_scan.py skills/my-skill --no-llm
+```

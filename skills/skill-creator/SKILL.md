@@ -1,11 +1,13 @@
 ---
 name: skill-creator
 description: >
-  Interactive, Q&A-driven Agent Skill creator. When a user requests a new skill, it acts
-  as a clarifying interview chatbot, asks detailed approach questions, formulates an
-  implementation plan, and requests explicit user approval before scaffolding the skill,
-  generating testing.md, test cases, and evaluating the skill end-to-end.
-  Trigger on: create skill, build agent skill, scaffold skill, new agent skill, generate skill from prompt.
+  Interactive, Q&A-driven Agent Skill creator and optimizer. When a user requests a new skill or bundle, it acts
+  as a clarifying architect chatbot, asks detailed approach questions, formulates an implementation plan,
+  requests explicit user confirmation, deterministically scaffolds the skill, generates task checklists and test cases,
+  runs parallel baseline and security audits, launches interactive eval reviews, auto-optimizes trigger descriptions,
+  and packages distributable .skill bundles.
+  Use whenever the user wants to design, author, scaffold, test, optimize, package, or build a new agent skill or SDD bundle.
+  Trigger on: create skill, build agent skill, scaffold skill, new agent skill, generate skill from prompt, create sdd bundle, optimize skill description, package skill, test skill evals.
 compatibility: "Python 3.8+"
 metadata:
   sdlc: Implementation
@@ -15,172 +17,166 @@ metadata:
     - agent-skills
     - interactive-chatbot
     - scaffolding
+    - trigger-optimization
 allowed-tools: "Read, Bash(python scripts/*.py:*)"
 ---
 
 # Skill Creator
 
-An interactive, Q&A-driven agent skill for authoring, testing, and evaluating new **Agent Skills** conforming strictly to the [Agent Skills Specification v1.0](https://agentskills.io/specification) and [NVIDIA SkillSpector](https://github.com/nvidia/skillspector) security standards.
+An interactive, Q&A-driven agent skill for authoring, evaluating, optimizing, and packaging new **Agent Skills** conforming strictly to the [Agent Skills Specification v1.0](https://agentskills.io/specification) and [NVIDIA SkillSpector](https://github.com/nvidia/skillspector) security standards.
 
-## 🤖 Core Interactive Behavior Contract (Crucial)
+---
 
-When a user prompts with a skill idea (e.g., *"I want to create a skill for X"* or *"Build an agent skill for Y"*), **DO NOT immediately generate files**. You must strictly operate as a consultative architect through a structured Q&A interview:
+## 🤖 End-to-End Skill Creation Lifecycle (10-Phase Workflow)
+
+When a user requests a new skill, follow this structured lifecycle to ensure optimal architecture, thorough verification, and trigger precision:
 
 ```
 User Skill Request
         │
         ▼
-Phase 1: Interactive Q&A Discovery (Ask 3-4 clarifying technical questions)
+Phase 1: Interactive Discovery Interview (4 focused technical questions)
         │
         ▼
-Phase 2: Formal Implementation Plan Formulation (Architectural Blueprint)
+Phase 2: Formal Implementation Blueprint Formulation
         │
         ▼
-Phase 3: Explicit User Approval Gate (STOP and wait for user's confirmation)
+Phase 3: Explicit User Confirmation Gate (Wait for user approval before writing code)
         │
-        ▼ (ONLY after user confirms "Yes / Approved")
-Phase 4: Scaffolding & Task Testing Matrix (`skills/<name>/` + `testing.md`)
-        │
-        ▼
-Phase 5: User Test Case Review & `evals/evals.json` Synthesis
+        ▼ (ONLY after user approves)
+Phase 4: Deterministic Scaffolding (`skills/<name>/` + `testing.md`)
         │
         ▼
-Phase 6: Automated Quality & Security Audit via `evaluator-skill` (95+ PASS Scorecard)
+Phase 5: Test Case Alignment & `evals/evals.json` Synthesis
+        │
+        ▼
+Phase 6: Quality & Security Evaluation via `evaluator-skill` (PASS / WARN / BLOCK)
+        │
+        ▼
+Phase 7: Baseline Lift Testing & Subagent Grading (`agents/grader.md`)
+        │
+        ▼
+Phase 8: Interactive Human Review via Eval Viewer (`eval-viewer/generate_review.py`)
+        │
+        ▼
+Phase 9: Description Trigger Optimization Loop (`scripts/run_loop.py`)
+        │
+        ▼
+Phase 10: Distributable Package Bundling (`scripts/package_skill.py`)
 ```
 
 ---
 
-## 📑 Step-by-Step Interactive Workflow
+## 📑 Step-by-Step Execution Contract
 
-### Phase 1: Interactive Q&A Discovery Interview
-When the user states their initial idea, reply in chat asking **4 specific clarifying questions**:
-
-1. **Target SDLC Phase & Primary Task**:
-   - What specific SDLC phase does this belong to (*Requirements, Architecture, Implementation, Testing, Security, Maintenance*)?
-   - What is the primary input (e.g., source code, git diff, Jira story, OpenAPI spec, CSV) and primary output deliverable?
-2. **Deterministic Script vs. LLM Boundary**:
-   - Should there be bundled offline Python scripts (e.g., AST parsers, linters, graph generators) in `scripts/`, or does it rely purely on progressive disclosure prompt contracts?
-3. **Trigger Invocations & Intent Boundaries**:
-   - What are 3-5 example user prompts that should explicitly trigger this skill?
-   - Are there near-miss queries that should NOT trigger it (to prevent collisions)?
-4. **Target Tools & Environment Dependencies**:
-   - Does it require special CLI tools (e.g., `git`, `npm`, `pytest`, `snyk`) or Python standard libraries?
-
----
+### Phase 1: Interactive Discovery Interview
+When the user states their initial skill idea, ask **4 specific clarifying questions** to nail down the technical requirements:
+1. **Target SDLC Phase & I/O Contract**: What SDLC phase does this belong to (*Requirements, Architecture, Implementation, Testing, Security, Maintenance*)? What are the primary inputs (e.g. diffs, source files, specs) and deliverables?
+2. **Deterministic Script vs. LLM Boundary**: Should logic be encapsulated into offline deterministic scripts in `scripts/` (to save tokens and ensure reproducibility), or does it rely purely on markdown procedural prompts?
+3. **Trigger Invocations & Intent Boundaries**: What are 3-5 example user prompts that should explicitly trigger this skill? What are near-miss queries that should NOT trigger it?
+4. **Environment & Tool Dependencies**: Does the skill require CLI tools (`git`, `npm`, `pytest`) or pure standard library Python?
 
 ### Phase 2: Formulate Comprehensive Implementation Plan
-Once the user answers the clarifying questions, synthesize their requirements into a formal blueprint and present it in chat:
+Synthesize the requirements into a formal blueprint and present it in chat:
 
 ```markdown
 ### 📐 Proposed Skill Implementation Plan: `<skill-name>`
 
 - **Skill Name**: `<kebab-case-name>`
 - **SDLC Phase**: `<Phase>`
-- **Trigger Description**: `<Concise description of WHAT and WHEN>`
+- **Trigger Description**: `<Pushy description of WHAT the skill does and WHEN to trigger it>`
 - **Progressive Disclosure Architecture**:
-  - `SKILL.md`: Procedural workflow contract (<500 lines)
-  - `scripts/<name>_skill.py`: Deterministic CLI tool
-  - `references/`: Domain rulebooks & API catalogs
-  - `templates/`: Output report blueprint
-  - `manifest.yaml` & `skill-card.json`: Enterprise packaging
-- **Verification Plan**:
-  - `testing.md`: Task-based checklist for Unit testing & E2E scenarios
-  - `evals/evals.json`: Benchmark assertion suite
+  - `SKILL.md`: Main procedural workflow contract (<500 lines)
+  - `scripts/<name>_skill.py`: Offline automation engine
+  - `references/`: Domain rulebooks & schema definitions
+  - `templates/`: Structured output templates
+  - `manifest.yaml` & `skill-card.json`: Spec 1.0 metadata
+- **Verification & Evaluation Plan**:
+  - `testing.md`: Task-based checklist for manual & automated verification
+  - `evals/evals.json`: Benchmark assertion suite (multi-type assertions)
 
-> ❓ **User Approval Required**: *Does this plan match your expectations? Please reply with **Approve** (or provide modifications) to begin scaffolding the skill.*
+> ❓ **User Confirmation Required**: Please confirm if you approve this plan to begin scaffolding.
 ```
 
----
+### Phase 3: Explicit User Confirmation Gate
+Wait for the user's explicit confirmation before creating files. This prevents wasted tokens and misaligned implementations.
 
-### Phase 3: Explicit User Approval Gate (CRITICAL)
-**STOP and wait for the user's explicit approval.** Do not create any file until the user confirms the plan.
+### Phase 4: Deterministic Scaffolding
+Execute the bundled scaffolder to build the standard directory layout:
 
----
-
-### Phase 4: Scaffolding Directory & Core Artifacts
-Once approved, execute the bundled deterministic scaffolder:
-
-**For a Single Skill:**
 ```bash
+# For a single skill:
 python skills/skill-creator/scripts/skill_scaffolder.py \
   --name "<skill-name>" \
-  --description "<approved trigger description>" \
-  --sdlc "<approved SDLC phase>"
-```
+  --description "<trigger description>" \
+  --sdlc "<sdlc phase>"
 
-**For a 4-Phase Spec-Driven Development (SDD) Bundle:**
-```bash
+# For a 4-Phase Spec-Driven Development (SDD) bundle:
 python skills/skill-creator/scripts/skill_scaffolder.py \
   --name "<bundle-prefix>" \
   --description "<domain description>" \
   --bundle sdd
-```
-*(This automatically scaffolds all 4 interconnected lifecycle skills: `<prefix>-specify`, `<prefix>-plan`, `<prefix>-implement`, and `<prefix>-verify`)*.
 
-Generate the task-based testing checklist:
-```bash
+# Generate task checklist:
 python skills/skill-creator/scripts/test_plan_orchestrator.py --skill skills/<skill-name>
 ```
 
----
-
-### Phase 5: Present `testing.md` & Synthesize `evals.json`
-Present the proposed test cases in `testing.md` to the user:
-> *"I have scaffolded the skill and created `testing.md`. Please review the test cases above. Once confirmed, I will generate the evaluation suites and run end-to-end verification."*
-
-Upon confirmation, write the benchmark suite:
+### Phase 5: Test Case Alignment & `evals.json` Synthesis
+Review the generated `testing.md` checklist and synthesize the multi-type assertion suite:
 ```bash
 python skills/skill-creator/scripts/test_plan_orchestrator.py --skill skills/<skill-name> --with-evals
 ```
 
----
-
-### Phase 6: Automated Quality & AST Security Audit
-Invoke the evaluator to verify 100% specification compliance, functional accuracy, and NVIDIA SkillSpector AST safety:
+### Phase 6: Quality & Security Evaluation
+Run the evaluator to audit specification compliance, AST safety, and security patterns:
 ```bash
-python -m evaluator.cli all skills/<skill-name> --output-dir scorecards
+python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<skill-name> --output ./scorecards
 ```
-Deliver the final `scorecards/<skill-name>.md` report with **`✅ PASS`**.
+
+### Phase 7: Baseline Lift Testing & Subagent Grading
+Execute baseline comparison to ensure the skill demonstrates empirical improvement over the base LLM:
+```bash
+python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/<skill-name> --output ./scorecards --with-baseline
+```
+Use the specialized subagents in `agents/`:
+- [`agents/grader.md`](agents/grader.md): Evidence-based assertion grading.
+- [`agents/comparator.md`](agents/comparator.md): Blind A/B comparison between skill versions.
+- [`agents/analyzer.md`](agents/analyzer.md): Post-hoc improvement synthesis.
+
+### Phase 8: Interactive Human Review via Eval Viewer
+Launch the local eval viewer web server to allow the user to review outputs, inspect benchmark graphs, and provide qualitative feedback:
+```bash
+python skills/skill-creator/eval-viewer/generate_review.py --workspace . --port 8765
+```
+
+### Phase 9: Description Trigger Optimization Loop
+Optimize the frontmatter `description` to ensure high trigger precision and recall (F1 score $\ge 0.80$):
+```bash
+python skills/skill-creator/scripts/run_loop.py --skill skills/<skill-name> --iterations 5
+```
+
+### Phase 10: Distributable Package Bundling
+Once all quality gates pass, package the skill into a distributable `.skill` archive:
+```bash
+python skills/skill-creator/scripts/package_skill.py --skill skills/<skill-name> --output ./dist
+```
 
 ---
 
-## 🎯 Example Dialog Workflow
+## 📦 Bundled Resources & Engine Scripts
 
-### Example A: Single Skill Creation
-```
-User: "I want to create a skill for analyzing SQL migration scripts."
+- **Scaffolding**: [`scripts/skill_scaffolder.py`](scripts/skill_scaffolder.py), [`scripts/test_plan_orchestrator.py`](scripts/test_plan_orchestrator.py), [`scripts/quick_validate.py`](scripts/quick_validate.py)
+- **Trigger Optimization**: [`scripts/run_eval.py`](scripts/run_eval.py), [`scripts/improve_description.py`](scripts/improve_description.py), [`scripts/run_loop.py`](scripts/run_loop.py)
+- **Packaging & Delivery**: [`scripts/package_skill.py`](scripts/package_skill.py)
+- **Subagents**: [`agents/grader.md`](agents/grader.md), [`agents/comparator.md`](agents/comparator.md), [`agents/analyzer.md`](agents/analyzer.md)
+- **Eval Reviewer UI**: [`eval-viewer/generate_review.py`](eval-viewer/generate_review.py), [`eval-viewer/viewer.html`](eval-viewer/viewer.html), [`assets/eval_review.html`](assets/eval_review.html)
+- **Schemas & Protocols**: [`references/schemas.md`](references/schemas.md)
 
-Agent: "I'd love to help you build the `sql-migration-analyzer` skill! To design the optimal architecture, could you clarify:
-1. What specific checks should it perform (e.g. table locks, unindexed foreign keys, destructive DROP statements)?
-2. Should we bundle an offline SQL AST parser script in `scripts/`?
-3. What are 3 typical prompts you'll use to trigger this skill?
-4. What output report format do you prefer (Markdown summary, JSON, or PR checklist)?"
+---
 
-User: [Answers questions]
+## 🎯 Authoring Best Practices (Progressive Disclosure)
 
-Agent: [Presents formal Implementation Plan and asks: 'Will you approve this plan to begin creation?']
-
-User: "Looks great, approved!"
-
-Agent: [Scaffolds skills/sql-migration-analyzer/, generates testing.md, confirms test cases, creates evals.json, evaluates score, and presents final 96+ PASS scorecard].
-```
-
-### Example B: Custom SDD Bundle Creation
-```
-User: "Can you create a custom SDD bundle for Cloudflare Worker development?"
-
-Agent: "Absolutely! I will design a 4-phase SDD bundle (`cf-worker-specify`, `cf-worker-plan`, `cf-worker-implement`, `cf-worker-verify`).
-Let me clarify a few technical requirements:
-1. What runtime APIs / bindings should be validated in the specify contract (KV, D1, R2, Queues)?
-2. What test runner should be configured for the verify phase (Vitest / Miniflare / Workerd)?
-3. What security checks should be prioritized?"
-
-User: [Answers questions]
-
-Agent: [Formulates 4-phase bundle plan and asks for approval]
-
-User: "Approved!"
-
-Agent: [Runs `skill_scaffolder.py --name cf-worker --bundle sdd`, scaffolds all 4 skills, generates testing plans, verifies each, and outputs 4 passing scorecards].
-```
-
+1. **Keep `SKILL.md` under 500 lines**: Use `SKILL.md` for high-level workflow orchestration. Move detailed domain rules to `references/*.md` and templates to `templates/*.md`.
+2. **Explain the "Why"**: Models follow instructions better when given context and rationale rather than arbitrary uppercase commands.
+3. **Pushy Descriptions**: Frontmatter descriptions should explicitly list trigger phrases and edge-case intents to prevent under-triggering.
+4. **Extract Repeated Work**: If evaluation runs show the model frequently writing boilerplate code, extract that logic into a bundled script in `scripts/`.

@@ -1,0 +1,56 @@
+# Known-safe findings suppression baseline
+# Add entries here to suppress known false-positive findings from the security scanner.
+# Format: list of suppressions with id (finding ID or '*' for wildcard), file_glob (fnmatch pattern), and reason.
+
+suppressions:
+  - id: "AST4"
+    file_glob: "*run_evaluation.py"
+    reason: "subprocess.run used for invoking evaluation scripts with literal argv list — expected behavior"
+
+  - id: "AST4"
+    file_glob: "*batch_scan.py"
+    reason: "subprocess.run used to invoke security_scan.py per skill — expected orchestration pattern"
+
+  - id: "P2"
+    file_glob: "*test_plan_orchestrator.py"
+    reason: "Standard emoji Unicode characters used in output formatting, not zero-width injection"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*SKILL.md"
+    reason: "Documentation references to SKILL.md filename"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*run_eval.py"
+    reason: "Evaluation script reading SKILL.md for trigger testing"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*package_skill.py"
+    reason: "Packaging script validating SKILL.md presence"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*quick_validate.py"
+    reason: "Validation script reading SKILL.md frontmatter"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*test_plan_orchestrator.py"
+    reason: "Orchestrator script creating testing plan referencing SKILL.md"
+
+  - id: "agent_skill_self_replication"
+    file_glob: "*skill_scaffolder.py"
+    reason: "Scaffolding engine generating template SKILL.md"
+
+  - id: "*"
+    file_glob: "*security_scan.py"
+    reason: "Security scanner engine contains pattern definitions for static detection"
+
+  - id: "*"
+    file_glob: "*security_patterns.md"
+    reason: "Security pattern documentation quotes pattern examples and taxonomy"
+
+  - id: "*"
+    file_glob: "*taint_tracker.py"
+    reason: "Taint tracker engine defines source and sink registries for AST analysis"
+
+  - id: "*"
+    file_glob: "*semantic_scanner.py"
+    reason: "Semantic scanner engine defines prompt categories and prompt text"

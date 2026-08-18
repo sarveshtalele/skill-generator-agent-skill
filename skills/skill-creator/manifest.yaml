@@ -1,7 +1,7 @@
 name: skill-creator
 display_name: Skill Creator Skill
-version: "1.0.0"
-description: "Autonomous, deterministic Agent Skill creator. Generates complete Spec 1.0 compliant skills from user requirements, creates a task-based testing.md checklist, orchestrates user confirmation for test cases, produces evals.json, and evaluates the skill using evaluator-skill."
+version: "2.0.0"
+description: "Interactive, Q&A-driven Agent Skill creator and optimizer. Generates Spec 1.0 compliant skills, custom SDD bundles, testing checklists, multi-type assertions, runs evaluator audits, launches interactive eval reviews, optimizes trigger descriptions, and packages .skill archives."
 author: "Sarvesh Talele"
 license: MIT
 category: code-analysis
@@ -9,6 +9,8 @@ tags:
   - skill-creator
   - sdlc
   - agent-skills
+  - scaffolding
+  - trigger-optimization
 runtime:
   engine: python
   min_version: "3.8"

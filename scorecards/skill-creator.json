@@ -1,51 +1,235 @@
 {
   "skill_name": "skill-creator",
-  "overall_score": 96.1,
-  "status": "PASS",
-  "passed": true,
-  "eval_mode": "static_heuristic",
+  "overall_score": 96.0,
+  "gate_decision": "PASS",
   "dimensions": {
-    "specification": 100.0,
-    "content": 90.0,
-    "functional": 100.0,
-    "skill_lift": 100.0,
-    "trigger": 88.9,
-    "reliability": 90.0,
-    "efficiency": 85.0,
+    "spec_compliance": 100.0,
+    "content_quality": 100.0,
+    "functional_correctness": 100.0,
+    "skill_lift": 78.57142857142858,
+    "trigger_quality": 92.0,
+    "reliability": 100.0,
+    "efficiency": 100.0,
     "security": 100.0
   },
-  "gate_decision": {
-    "status": "PASS",
-    "passed": true,
-    "blocking_reasons": [],
-    "warning_reasons": []
+  "structural": {
+    "skill_name": "skill-creator",
+    "structural_score": 100,
+    "issues": [],
+    "stats": {
+      "skillmd_lines": 183,
+      "referenced_files": [
+        "assets/eval_review.html",
+        "references/schemas.md",
+        "scripts/improve_description.py",
+        "scripts/package_skill.py",
+        "scripts/quick_validate.py",
+        "scripts/run_eval.py",
+        "scripts/run_loop.py",
+        "scripts/skill_scaffolder.py",
+        "scripts/test_plan_orchestrator.py"
+      ],
+      "missing_referenced_files": [],
+      "bundled_files_not_referenced": []
+    }
   },
-  "security_summary": {
-    "critical": 0,
-    "high": 0,
-    "medium": 0,
-    "low": 0,
-    "false_positives": 1,
-    "total_findings": 1
+  "security": {
+    "skill_path": "skills/skill-creator",
+    "components": [
+      {
+        "file": "manifest.yaml",
+        "type": "yaml",
+        "lines": 26,
+        "executable": false
+      },
+      {
+        "file": "SKILL.md",
+        "type": "md",
+        "lines": 183,
+        "executable": false
+      },
+      {
+        "file": "skill-card.json",
+        "type": "json",
+        "lines": 70,
+        "executable": false
+      },
+      {
+        "file": "eval-viewer/generate_review.py",
+        "type": "py",
+        "lines": 155,
+        "executable": true
+      },
+      {
+        "file": "evals/evals.json",
+        "type": "json",
+        "lines": 61,
+        "executable": false
+      },
+      {
+        "file": "references/schemas.md",
+        "type": "md",
+        "lines": 104,
+        "executable": false
+      },
+      {
+        "file": "agents/grader.md",
+        "type": "md",
+        "lines": 33,
+        "executable": false
+      },
+      {
+        "file": "agents/comparator.md",
+        "type": "md",
+        "lines": 25,
+        "executable": false
+      },
+      {
+        "file": "agents/analyzer.md",
+        "type": "md",
+        "lines": 22,
+        "executable": false
+      },
+      {
+        "file": "scripts/run_eval.py",
+        "type": "py",
+        "lines": 154,
+        "executable": true
+      },
+      {
+        "file": "scripts/test_plan_orchestrator.py",
+        "type": "py",
+        "lines": 134,
+        "executable": true
+      },
+      {
+        "file": "scripts/package_skill.py",
+        "type": "py",
+        "lines": 59,
+        "executable": true
+      },
+      {
+        "file": "scripts/quick_validate.py",
+        "type": "py",
+        "lines": 67,
+        "executable": true
+      },
+      {
+        "file": "scripts/skill_scaffolder.py",
+        "type": "py",
+        "lines": 273,
+        "executable": true
+      },
+      {
+        "file": "scripts/improve_description.py",
+        "type": "py",
+        "lines": 59,
+        "executable": true
+      },
+      {
+        "file": "scripts/run_loop.py",
+        "type": "py",
+        "lines": 60,
+        "executable": true
+      }
+    ],
+    "findings": [],
+    "risk_score": 0,
+    "risk_severity": "LOW",
+    "recommendation": "SAFE"
   },
-  "security_findings": [
+  "assertions": [
     {
-      "category": "Whitespace Obfuscation",
-      "severity": "MEDIUM",
-      "file": "/home/runner/work/agentkills-test/agentkills-test/skills/skill-creator/scripts/test_plan_orchestrator.py",
-      "line_number": 56,
-      "description": "Hidden Zero-Width Unicode Characters",
-      "snippet": "  53 | \n  54 | ---\n  55 | \n  56 > ## \ud83e\uddd1\u200d\ud83d\udcbb Task 3: User Test Case Alignment & Confirmation\n  57 | \n  58 | > \u26a0\ufe0f **Action Required by User**: Review the generated test cases below. Once approved, mark the confirmation checkbox and proceed to Task 4.\n  59 | "
+      "assertion": "contains:api-contract-linter",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:testing.md",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:evals.json",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(scaffold|spec|evaluator|testing)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Generates a complete Spec 1.0 compliant skill directory with all required artifacts",
+      "passed": true,
+      "evidence": "Matched 9/9 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "contains:kubernetes-operator",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(specify|plan|implement|verify)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "matches:(?i)(4|four|bundle|sdd)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Creates all 4 SDD lifecycle skills with proper cross-references",
+      "passed": true,
+      "evidence": "Matched 6/6 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "contains:description",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(trigger|optimization|F1|improved)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "contains:.skill",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(package|bundle|zip|distribut)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "contains:comparison",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(winner|score|blind|A.B)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
     }
   ],
-  "regression": {
-    "skill_name": "skill-creator",
-    "has_baseline": true,
-    "overall_delta": 0.0,
-    "functional_delta": 0.0,
-    "security_delta": 0.0,
-    "trigger_delta": 0.0,
-    "regressions": [],
-    "has_critical_regression": false
-  }
+  "baseline_lift": 0.35,
+  "mode": "standalone_full_ast"
 }

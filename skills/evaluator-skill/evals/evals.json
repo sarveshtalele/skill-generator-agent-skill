@@ -10,7 +10,52 @@
         "contains:csv-analyzer",
         "contains:Specification",
         "contains:SkillSpector",
-        "matches:(?i)(quality|score|pass|gate)"
+        "matches:(?i)(quality|score|pass|gate)",
+        "Produces a comprehensive quality scorecard covering all 8 evaluation dimensions"
+      ]
+    },
+    {
+      "id": "eval-002",
+      "prompt": "Run a security scan on skills/skill-creator and output findings in SARIF format.",
+      "expected_output": "Generates a SARIF 2.1.0 compliant report with security findings, rule definitions, and severity levels.",
+      "files": [],
+      "assertions": [
+        "contains:SARIF",
+        "matches:(?i)(finding|rule|severity|security)",
+        "contains:SkillSpector"
+      ]
+    },
+    {
+      "id": "eval-003",
+      "prompt": "Evaluate skills/skill-creator with baseline comparison to measure skill lift delta.",
+      "expected_output": "Runs with-skill and without-skill tests, computes lift delta, and writes benchmark.json.",
+      "files": [],
+      "assertions": [
+        "contains:benchmark",
+        "contains:lift",
+        "matches:(?i)(baseline|with.skill|without.skill|delta)"
+      ]
+    },
+    {
+      "id": "eval-004",
+      "prompt": "Generate an execution trace and timing report for skills/evaluator-skill evaluation.",
+      "expected_output": "Captures tool calls and timing data into trace.json and timing.json files.",
+      "files": [],
+      "assertions": [
+        "contains:trace",
+        "contains:timing",
+        "matches:(?i)(tool.call|duration|token)"
+      ]
+    },
+    {
+      "id": "eval-005",
+      "prompt": "Batch scan all skills in this repository and generate a portfolio summary.",
+      "expected_output": "Scans skill-creator and evaluator-skill, produces individual scorecards and aggregated summary.",
+      "files": [],
+      "assertions": [
+        "contains:skill-creator",
+        "contains:evaluator-skill",
+        "matches:(?i)(pass|warn|block)"
       ]
     }
   ]

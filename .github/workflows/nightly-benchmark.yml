@@ -1,0 +1,38 @@
+name: Nightly Full Benchmark
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Evaluate All Skills
+        run: |
+          for skill_dir in skills/*/; do
+            skill_name=$(basename "$skill_dir")
+            echo "=== Evaluating $skill_name ==="
+            python skills/evaluator-skill/scripts/run_evaluation.py \
+              --skill "$skill_dir" \
+              --output ./scorecards \
+              --format json || true
+          done
+
+      - name: Generate Portfolio Scorecard
+        run: python scripts/generate_scorecard.py
+
+      - name: Commit Updated Scorecards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scorecards/ SCORECARD.md SKILL_REGISTRY.md
+          git diff --cached --quiet || git commit -m "chore: nightly benchmark update [skip ci]"
+          git push
