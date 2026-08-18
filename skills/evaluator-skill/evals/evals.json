@@ -1,0 +1,17 @@
+{
+  "skill_name": "evaluator-skill",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "Evaluate skills/csv-analyzer across all 8 dimensions and generate a quality scorecard.",
+      "expected_output": "Produces Markdown and JSON scorecards for csv-analyzer with Spec, Functional, Lift, Trigger, and NVIDIA SkillSpector security results.",
+      "files": [],
+      "assertions": [
+        "contains:csv-analyzer",
+        "contains:Specification",
+        "contains:SkillSpector",
+        "matches:(?i)(quality|score|pass|gate)"
+      ]
+    }
+  ]
+}

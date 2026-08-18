@@ -1,0 +1,29 @@
+{
+  "name": "skill-generator-agent-skill",
+  "version": "1.0.0",
+  "description": "Enterprise Agent Skill Generator & Evaluator Bundle for Claude Code, Cursor, Antigravity, and Windsurf",
+  "type": "module",
+  "bin": {
+    "skill-generator": "./bin/install.js",
+    "skill-creator": "./bin/install.js"
+  },
+  "keywords": [
+    "agent-skills",
+    "skill-creator",
+    "skill-generator",
+    "evaluator-skill",
+    "claude-code",
+    "cursor",
+    "antigravity",
+    "windsurf",
+    "nvidia-skillspector",
+    "sdd",
+    "npx"
+  ],
+  "author": "Sarvesh Talele",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sarveshtalele/skill-generator-agent-skill.git"
+  }
+}

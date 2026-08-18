@@ -1,0 +1,17 @@
+{
+  "skill_name": "skill-creator",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "Create a new agent skill called 'api-contract-linter' to validate OpenAPI specifications against enterprise REST guidelines.",
+      "expected_output": "Scaffolds skills/api-contract-linter, generates testing.md, aligns testcases with user, synthesizes evals.json, and runs evaluator-skill.",
+      "files": [],
+      "assertions": [
+        "contains:api-contract-linter",
+        "contains:testing.md",
+        "contains:evals.json",
+        "matches:(?i)(scaffold|spec|evaluator|testing)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "skill_card": {
+    "starterkit_id": "skill-creator",
+    "name": "Skill Creator Skill",
+    "description": "Autonomous, deterministic Agent Skill creator. Generates complete Spec 1.0 compliant skills from user requirements, creates a task-based testing.md checklist, orchestrates user confirmation for test cases, produces evals.json, and evaluates the skill using evaluator-skill.",
+    "origin": {
+      "BG": "BFSI",
+      "ISU": "APAC",
+      "Account": "Enterprise"
+    },
+    "maintainers": [
+      {
+        "name": "Sarvesh Talele",
+        "contact": "sarvesh.talele@tcs.com"
+      },
+      {
+        "name": "Tejus Ajit Manjrekar",
+        "contact": "tejus.manjrekar@tcs.com"
+      },
+      {
+        "name": "Shivprakash Swami",
+        "contact": "shivprakash.swami@tcs.com"
+      }
+    ],
+    "version": "1.0.0",
+    "status": "verified",
+    "technology": ["Python", "JavaScript", "Git", "JSON", "Markdown", "AST Analysis"],
+    "specialization": {
+      "primary": "agent_skill_scaffolding_and_orchestration",
+      "domain_specific": [
+        "Agent Skills Spec 1.0",
+        "Progressive Disclosure Scaffolding",
+        "Task-Based Test Generation",
+        "User Alignment Verification",
+        "Quality Gate Automation"
+      ]
+    },
+    "tasks": [
+      {
+        "name": "Scaffold Spec 1.0 Skill Structure",
+        "description": "Creates standardized directory layout, SKILL.md, Python script engine, references, and manifest.",
+        "input_schema": "Skill name, description, and SDLC phase.",
+        "output_schema": "Fully scaffolded skill folder matching enterprise architecture.",
+        "async": true
+      },
+      {
+        "name": "Generate Task-Based Testing Plan",
+        "description": "Emits testing.md containing unit test instructions, E2E test scenarios, and user verification checklist.",
+        "input_schema": "Target skill directory.",
+        "output_schema": "Structured testing.md document.",
+        "async": true
+      },
+      {
+        "name": "Orchestrate Test Synthesis and Quality Evaluation",
+        "description": "Writes evals/evals.json and invokes evaluator-skill to verify quality and AST security scorecards.",
+        "input_schema": "User confirmed test criteria.",
+        "output_schema": "evals/evals.json and comprehensive quality scorecard report.",
+        "async": true
+      }
+    ],
+    "documentation": {
+      "readme": "README.md",
+      "howto": "QuickStart.md",
+      "changelog": "Initial verified release."
+    },
+    "supported_harness": ["GitHub Copilot", "Claude Code", "Cursor", "Antigravity", "Windsurf"],
+    "tested_harness": ["GitHub Copilot", "Claude Code", "Cursor", "Antigravity"]
+  }
+}

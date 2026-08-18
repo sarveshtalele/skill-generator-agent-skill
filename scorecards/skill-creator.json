@@ -1,0 +1,51 @@
+{
+  "skill_name": "skill-creator",
+  "overall_score": 96.1,
+  "status": "PASS",
+  "passed": true,
+  "eval_mode": "static_heuristic",
+  "dimensions": {
+    "specification": 100.0,
+    "content": 90.0,
+    "functional": 100.0,
+    "skill_lift": 100.0,
+    "trigger": 88.9,
+    "reliability": 90.0,
+    "efficiency": 85.0,
+    "security": 100.0
+  },
+  "gate_decision": {
+    "status": "PASS",
+    "passed": true,
+    "blocking_reasons": [],
+    "warning_reasons": []
+  },
+  "security_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "false_positives": 1,
+    "total_findings": 1
+  },
+  "security_findings": [
+    {
+      "category": "Whitespace Obfuscation",
+      "severity": "MEDIUM",
+      "file": "/home/runner/work/agentkills-test/agentkills-test/skills/skill-creator/scripts/test_plan_orchestrator.py",
+      "line_number": 56,
+      "description": "Hidden Zero-Width Unicode Characters",
+      "snippet": "  53 | \n  54 | ---\n  55 | \n  56 > ## \ud83e\uddd1\u200d\ud83d\udcbb Task 3: User Test Case Alignment & Confirmation\n  57 | \n  58 | > \u26a0\ufe0f **Action Required by User**: Review the generated test cases below. Once approved, mark the confirmation checkbox and proceed to Task 4.\n  59 | "
+    }
+  ],
+  "regression": {
+    "skill_name": "skill-creator",
+    "has_baseline": true,
+    "overall_delta": 0.0,
+    "functional_delta": 0.0,
+    "security_delta": 0.0,
+    "trigger_delta": 0.0,
+    "regressions": [],
+    "has_critical_regression": false
+  }
+}

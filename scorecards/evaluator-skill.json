@@ -1,0 +1,51 @@
+{
+  "skill_name": "evaluator-skill",
+  "overall_score": 92.6,
+  "status": "PASS",
+  "passed": true,
+  "eval_mode": "static_heuristic",
+  "dimensions": {
+    "specification": 100.0,
+    "content": 90.0,
+    "functional": 100.0,
+    "skill_lift": 75.0,
+    "trigger": 90.9,
+    "reliability": 90.0,
+    "efficiency": 85.0,
+    "security": 100.0
+  },
+  "gate_decision": {
+    "status": "PASS",
+    "passed": true,
+    "blocking_reasons": [],
+    "warning_reasons": []
+  },
+  "security_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "false_positives": 1,
+    "total_findings": 1
+  },
+  "security_findings": [
+    {
+      "category": "Dangerous Code AST",
+      "severity": "MEDIUM",
+      "file": "/home/runner/work/agentkills-test/agentkills-test/skills/evaluator-skill/scripts/run_evaluation.py",
+      "line_number": 31,
+      "description": "Subprocess Invocation via subprocess.run",
+      "snippet": "  28 |         str(output_dir),\n  29 |     ]\n  30 |     \n  31 >     proc = subprocess.run(cmd, capture_output=True, text=True)\n  32 |     scorecard_json = output_dir / f\"{skill_name}.json\"\n  33 |     scorecard_md = output_dir / f\"{skill_name}.md\"\n  34 |     "
+    }
+  ],
+  "regression": {
+    "skill_name": "evaluator-skill",
+    "has_baseline": true,
+    "overall_delta": 0.0,
+    "functional_delta": 0.0,
+    "security_delta": 0.0,
+    "trigger_delta": 0.0,
+    "regressions": [],
+    "has_critical_regression": false
+  }
+}

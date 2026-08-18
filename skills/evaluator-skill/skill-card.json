@@ -1,0 +1,69 @@
+{
+  "skill_card": {
+    "starterkit_id": "evaluator-skill",
+    "name": "Evaluator Skill",
+    "description": "Audits agent skills on quality (best practices, progressive disclosure, functional lift, trigger F1) and security (NVIDIA SkillSpector 17-category vulnerability taxonomy), producing scored Markdown & JSON reports.",
+    "origin": {
+      "BG": "BFSI",
+      "ISU": "APAC",
+      "Account": "Enterprise"
+    },
+    "maintainers": [
+      {
+        "name": "Sarvesh Talele",
+        "contact": "sarvesh.talele@tcs.com"
+      },
+      {
+        "name": "Tejus Ajit Manjrekar",
+        "contact": "tejus.manjrekar@tcs.com"
+      },
+      {
+        "name": "Shivprakash Swami",
+        "contact": "shivprakash.swami@tcs.com"
+      }
+    ],
+    "version": "1.0.0",
+    "status": "verified",
+    "technology": ["Python", "AST Analysis", "Git", "JSON", "Markdown", "NVIDIA SkillSpector"],
+    "specialization": {
+      "primary": "agent_skill_quality_and_security_audit",
+      "domain_specific": [
+        "NVIDIA SkillSpector 17",
+        "Agent Skills Spec 1.0",
+        "Progressive Disclosure Metrics",
+        "Functional Lift Benchmarking",
+        "Automated PR Quality Gates"
+      ]
+    },
+    "tasks": [
+      {
+        "name": "Validate Spec 1.0 Schema Compliance",
+        "description": "Checks frontmatter YAML syntax, regex rules, path containment, and line count budgets.",
+        "input_schema": "Target skill directory.",
+        "output_schema": "Specification findings and compliance score.",
+        "async": true
+      },
+      {
+        "name": "Run NVIDIA SkillSpector AST Security Audit",
+        "description": "Scans across 17 vulnerability categories and Python AST for prompt injection, data leaks, and dangerous execution.",
+        "input_schema": "Skill directory and baseline suppression configuration.",
+        "output_schema": "Security findings list and pass/block gate decision.",
+        "async": true
+      },
+      {
+        "name": "Evaluate Functional Correctness & Lift",
+        "description": "Grades assertion passes in evals/evals.json and computes lift delta against baseline agent performance.",
+        "input_schema": "Skill evals.json suite.",
+        "output_schema": "Functional accuracy score, lift delta, and execution trace.",
+        "async": true
+      }
+    ],
+    "documentation": {
+      "readme": "README.md",
+      "howto": "QuickStart.md",
+      "changelog": "Initial verified release."
+    },
+    "supported_harness": ["GitHub Copilot", "Claude Code", "Cursor", "Antigravity", "Windsurf"],
+    "tested_harness": ["GitHub Copilot", "Claude Code", "Cursor", "Antigravity"]
+  }
+}

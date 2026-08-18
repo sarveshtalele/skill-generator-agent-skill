@@ -1,0 +1,23 @@
+name: skill-creator
+display_name: Skill Creator Skill
+version: "1.0.0"
+description: "Autonomous, deterministic Agent Skill creator. Generates complete Spec 1.0 compliant skills from user requirements, creates a task-based testing.md checklist, orchestrates user confirmation for test cases, produces evals.json, and evaluates the skill using evaluator-skill."
+author: "Sarvesh Talele"
+license: MIT
+category: code-analysis
+tags:
+  - skill-creator
+  - sdlc
+  - agent-skills
+runtime:
+  engine: python
+  min_version: "3.8"
+  entry_point: scripts/skill_scaffolder.py
+  dependencies: []
+tools:
+  - run_in_terminal
+  - read_file
+  - file_search
+  - grep_search
+entry_files:
+  skill_definition: SKILL.md
