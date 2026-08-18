@@ -42,11 +42,6 @@ const BUNDLE_SKILLS = [
     name: 'evaluator-skill',
     phase: 'Maintenance & Security',
     desc: 'Audits agent skills on 8 quality dimensions, functional lift, and NVIDIA SkillSpector 68-pattern AST security.'
-  },
-  {
-    name: 'token-telemetry',
-    phase: 'Maintenance & Security',
-    desc: 'Tracks, analyzes, and optimizes Claude token consumption, prompt caching efficiency, throughput, and API costs.'
   }
 ];
 

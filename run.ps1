@@ -83,7 +83,6 @@ switch ($Action.ToLower()) {
         Write-Host "🚀 Evaluating all bundled skills..." -ForegroundColor Green
         & $Python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/skill-creator --output ./scorecards
         & $Python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/evaluator-skill --output ./scorecards
-        & $Python skills/evaluator-skill/scripts/run_evaluation.py --skill skills/token-telemetry --output ./scorecards
         & $Python scripts/generate_scorecard.py
     }
 

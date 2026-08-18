@@ -1,12 +1,12 @@
 [
   {
-    "timestamp": "2026-08-18T08:59:05Z",
+    "timestamp": "2026-08-18T09:04:30Z",
     "event_type": "tool_call",
     "tool_name": "evaluate_skill",
     "arguments": {
-      "skill": "token-telemetry"
+      "skill": "evaluator-skill"
     },
-    "duration_ms": 100,
-    "content": "Evaluated token-telemetry"
+    "duration_ms": 193,
+    "content": "Evaluated evaluator-skill"
   }
 ]

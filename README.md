@@ -99,9 +99,6 @@ Empirical comparison between authoring & running skills with **Spec 1.0 Agent Sk
 ├─────────────────┼────────────────┼──────────────────────────┼────────────────────────────────────────────────────────┤
 │ evaluator-skill │   96.0 / 100   │ ✅ PASS (SkillSpector)    │ Full 8-dimension RAGAS quality engine & 68-pattern AST │
 │                 │                │                          │ taint scanner with SARIF, trace, & baseline lift tests │
-├─────────────────┼────────────────┼──────────────────────────┼────────────────────────────────────────────────────────┤
-│ token-telemetry │   96.0 / 100   │ ✅ PASS (SkillSpector)    │ Multi-agent observability, dual USD ($) & INR (₹) rates│
-│                 │                │                          │ history.jsonl analysis & local web dashboard (:3000)   │
 └─────────────────┴────────────────┴──────────────────────────┴────────────────────────────────────────────────────────┘
 ```
 
@@ -111,7 +108,7 @@ Live Matrix: [SCORECARD.md](SCORECARD.md) · Catalog: [SKILL_REGISTRY.md](SKILL_
 
 ## 📁 Universal Setup: Where to Paste Skill Folders
 
-To use any bundled skill (`skill-creator`, `evaluator-skill`, `token-telemetry`), simply copy its folder from `skills/<skill-name>/` to your desired IDE destination:
+To use any bundled skill (`skill-creator`, `evaluator-skill`), simply copy its folder from `skills/<skill-name>/` to your desired IDE destination:
 
 ### 1. Project-Level (Specific Codebase / Repository)
 Copy the skill folder directly into your project's hidden IDE directory:
@@ -262,21 +259,13 @@ The evaluation engine integrates NVIDIA SkillSpector standards:
     │   ├── scripts/
     │   ├── references/
     │   └── evals/
-    ├── evaluator-skill/              # Audit, test & security scoring engine
-    │   ├── SKILL.md
-    │   ├── README.md
-    │   ├── manifest.yaml
-    │   ├── skill-card.json
-    │   ├── scripts/
-    │   ├── assets/
-    │   └── evals/
-    └── token-telemetry/              # Multi-agent observability & USD/INR dashboard
+    └── evaluator-skill/              # Audit, test & security scoring engine
         ├── SKILL.md
         ├── README.md
         ├── manifest.yaml
         ├── skill-card.json
         ├── scripts/
-        ├── references/
+        ├── assets/
         └── evals/
 ```
 

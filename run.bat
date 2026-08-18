@@ -80,7 +80,6 @@ goto end
 echo [INFO] Evaluating all bundled skills...
 %PY% skills/evaluator-skill/scripts/run_evaluation.py --skill skills/skill-creator --output ./scorecards
 %PY% skills/evaluator-skill/scripts/run_evaluation.py --skill skills/evaluator-skill --output ./scorecards
-%PY% skills/evaluator-skill/scripts/run_evaluation.py --skill skills/token-telemetry --output ./scorecards
 %PY% scripts/generate_scorecard.py
 goto end
 
