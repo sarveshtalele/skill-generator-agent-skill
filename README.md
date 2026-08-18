@@ -266,8 +266,6 @@ skill-generator-agent-skill/
 ├── bin/
 │   └── install.js                             # Multi-IDE NPX installer / uninstaller
 ├── .github/
-│   ├── workflows/skill-ci.yml                 # Automated CI quality gate with SARIF upload
-│   ├── workflows/nightly-benchmark.yml        # Nightly benchmark update
 │   └── pull_request_template.md               # PR checklist
 ├── .skill-quality/
 │   └── .skillspector-baseline.yaml            # False-positive suppression config
