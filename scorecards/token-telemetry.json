@@ -39,6 +39,12 @@
         "executable": false
       },
       {
+        "file": "README.md",
+        "type": "md",
+        "lines": 104,
+        "executable": false
+      },
+      {
         "file": "manifest.yaml",
         "type": "yaml",
         "lines": 24,

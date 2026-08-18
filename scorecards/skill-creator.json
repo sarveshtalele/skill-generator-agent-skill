@@ -37,6 +37,12 @@
     "skill_path": "skills/skill-creator",
     "components": [
       {
+        "file": "README.md",
+        "type": "md",
+        "lines": 113,
+        "executable": false
+      },
+      {
         "file": "manifest.yaml",
         "type": "yaml",
         "lines": 26,

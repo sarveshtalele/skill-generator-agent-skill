@@ -15,26 +15,21 @@
 
 ---
 
-## 1. 🚀 1-Command Installation & Setup
+## 1. 🚀 Universal Skill Placement & Setup
 
-### 📦 Multi-IDE Skill Installer (Zero-Install NPX)
+Copy the skill folder (`skills/<name>`) into your AI coding assistant's skill directory:
+
 ```bash
-# 1. Interactive Multi-IDE Installer
-npx github:sarveshtalele/skill-generator-agent-skill install
+# 📁 Project-Level Installation (Inside your repository)
+cp -r skills/skill-creator /path/to/project/.claude/skills/
+cp -r skills/evaluator-skill /path/to/project/.cursor/skills/
+cp -r skills/token-telemetry /path/to/project/.gemini/skills/
 
-# 2. Direct 1-Line IDE Install (Project vs Global):
-npx github:sarveshtalele/skill-generator-agent-skill install --target claude --scope project # Project-level (.claude/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target cursor --dir ./my-app  # Target project dir (.cursor/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --global   # Global-level (~/.gemini/antigravity/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf --project     # Project-level (.windsurf/skills/)
-
-# 3. Install a Specific Skill
-npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude --scope project
-npx github:sarveshtalele/skill-generator-agent-skill install evaluator-skill --target cursor --dir ./my-app
-
-# 4. Uninstall
-npx github:sarveshtalele/skill-generator-agent-skill uninstall --target claude --scope project
-npx github:sarveshtalele/skill-generator-agent-skill uninstall --target antigravity --global
+# 🌐 Global Installation (Available across all projects on your system)
+cp -r skills/* ~/.claude/skills/
+cp -r skills/* ~/.cursor/skills/
+cp -r skills/* ~/.gemini/antigravity/skills/
+cp -r skills/* ~/.windsurf/skills/
 ```
 
 ---

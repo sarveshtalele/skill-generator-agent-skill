@@ -63,25 +63,45 @@ def generate_scorecard_md(scorecards: list[dict], output: Path) -> None:
     print(f"✅ Generated {output}")
 
 
-def generate_registry_md(scorecards: list[dict], output: Path) -> None:
+def generate_registry_md(scorecards: list[dict], output: Path, skills_dir: Path | None = None) -> None:
     """Generate SKILL_REGISTRY.md — indexed skill catalog."""
     lines = [
         "# 📦 Skill Registry",
         "",
         f"> Auto-generated on {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
         "",
-        "| Skill | Category | SDLC Phase | Description | Score |",
-        "|:--|:--|:--|:--|:--|",
+        "| Skill | SDLC Phase | Quality Score | Description |",
+        "|:---|:---:|:---:|:---|",
     ]
 
     for sc in scorecards:
         name = sc.get("skill_name", "unknown")
         score = sc.get("overall_score", "N/A")
-        category = "agent-skills"
-        sdlc = "—"
-        desc = sc.get("description", f"Skill for {name}")
+        sdlc = "Implementation"
+        desc = "Meta-skill for agent skill lifecycle and execution."
 
-        lines.append(f"| `{name}` | {category} | {sdlc} | {desc} | {score}/100 |")
+        # Attempt to read frontmatter from skills/<name>/SKILL.md
+        if skills_dir and (skills_dir / name / "SKILL.md").exists():
+            skill_md = (skills_dir / name / "SKILL.md").read_text(encoding="utf-8", errors="ignore")
+            import re
+            m_desc_multi = re.search(r"^description:\s*>\s*\n((?:\s{2,}.+\n?)+)", skill_md, re.MULTILINE)
+            if m_desc_multi:
+                desc = " ".join(line.strip() for line in m_desc_multi.group(1).splitlines() if line.strip())
+            else:
+                m_desc = re.search(r"^description:\s*(.+)$", skill_md, re.MULTILINE)
+                if m_desc and m_desc.group(1).strip() != ">":
+                    desc = m_desc.group(1).strip()
+            
+            m_sdlc = re.search(r"(?:sdlc-phase|sdlc):\s*(.+)$", skill_md, re.MULTILINE)
+            if m_sdlc:
+                sdlc = m_sdlc.group(1).strip()
+
+        # Clean description to single line for markdown table
+        desc_clean = desc.replace("\n", " ").replace("|", "\\|")
+        if len(desc_clean) > 180:
+            desc_clean = desc_clean[:177] + "..."
+
+        lines.append(f"| [`{name}`](skills/{name}/README.md) | {sdlc} | **{score}/100** | {desc_clean} |")
 
     lines.extend(["", "---", "", "*Run `make scorecard` to regenerate this registry.*", ""])
     output.write_text("\n".join(lines), encoding="utf-8")
@@ -102,7 +122,7 @@ def main():
         sys.exit(1)
 
     generate_scorecard_md(scorecards, repo_root / "SCORECARD.md")
-    generate_registry_md(scorecards, repo_root / "SKILL_REGISTRY.md")
+    generate_registry_md(scorecards, repo_root / "SKILL_REGISTRY.md", skills_dir=repo_root / "skills")
     print(f"📊 Processed {len(scorecards)} skill(s)")
 
 

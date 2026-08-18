@@ -47,6 +47,12 @@
     "skill_path": "skills/evaluator-skill",
     "components": [
       {
+        "file": "README.md",
+        "type": "md",
+        "lines": 111,
+        "executable": false
+      },
+      {
         "file": "manifest.yaml",
         "type": "yaml",
         "lines": 26,
