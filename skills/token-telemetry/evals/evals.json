@@ -1,0 +1,55 @@
+{
+  "skill_name": "token-telemetry",
+  "evals": [
+    {
+      "id": "eval-1-basic-telemetry",
+      "prompt": "Analyze Claude token telemetry from session log and compute estimated USD cost.",
+      "assertions": [
+        "file:scripts/token_tracker.py",
+        "file:references/pricing_models.md",
+        "contains:token-telemetry",
+        "matches:(?i)(claude|token|cost|pricing|cache)",
+        "Calculates exact USD API cost and prompt cache hit ratio"
+      ]
+    },
+    {
+      "id": "eval-2-pricing-models",
+      "prompt": "Compare token pricing rates between Claude 3.7 Sonnet, Claude 3.5 Haiku, and Claude 3 Opus.",
+      "assertions": [
+        "file:references/pricing_models.md",
+        "contains:claude-3-7-sonnet",
+        "contains:claude-3-5-haiku",
+        "matches:(?i)(3.00|0.80|15.00|cache)",
+        "Provides accurate per-million pricing rates for all Claude model families"
+      ]
+    },
+    {
+      "id": "eval-3-json-export",
+      "prompt": "Export token telemetry record in standard JSON format matching schema.",
+      "assertions": [
+        "file:references/schemas.md",
+        "contains:TokenRecord",
+        "matches:(?i)(input_tokens|output_tokens|cache_hit_ratio)",
+        "Emits compliant JSON telemetry record with all required metrics"
+      ]
+    },
+    {
+      "id": "eval-4-cache-optimization",
+      "prompt": "Explain how to diagnose low prompt cache hit ratio and optimize prompt ordering.",
+      "assertions": [
+        "contains:SKILL.md",
+        "matches:(?i)(cache|ratio|optimization|strategy)",
+        "Recommends placing static instructions before dynamic turn context to maximize cache hits"
+      ]
+    },
+    {
+      "id": "eval-5-cli-execution",
+      "prompt": "Run the bundled token tracker script to parse session metrics and generate a Markdown table.",
+      "assertions": [
+        "file:scripts/token_tracker.py",
+        "matches:(?i)(table|breakdown|throughput|total)",
+        "Executes deterministic token analysis CLI and outputs structured Markdown breakdown"
+      ]
+    }
+  ]
+}

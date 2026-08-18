@@ -37,4 +37,5 @@ batch: ## Batch evaluate all skills
 evaluate-all: ## Evaluate all bundled skills
 	$(MAKE) evaluate SKILL=skill-creator
 	$(MAKE) evaluate SKILL=evaluator-skill
+	$(MAKE) evaluate SKILL=token-telemetry
 	$(MAKE) scorecard

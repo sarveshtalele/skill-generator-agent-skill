@@ -1,11 +1,12 @@
 # 📦 Skill Registry
 
-> Auto-generated on 2026-08-18 06:24 UTC
+> Auto-generated on 2026-08-18 06:30 UTC
 
 | Skill | Category | SDLC Phase | Description | Score |
 |:--|:--|:--|:--|:--|
 | `evaluator-skill` | agent-skills | — | Skill for evaluator-skill | 96.0/100 |
 | `skill-creator` | agent-skills | — | Skill for skill-creator | 96.0/100 |
+| `token-telemetry` | agent-skills | — | Skill for token-telemetry | 96.0/100 |
 
 ---
 

@@ -145,7 +145,10 @@ def check_skill(skill_path):
     # contain example-looking paths (e.g. "scripts/x.py" in a sample JSON snippet) that aren't
     # real bundle references, so only look at inline text for the "does this file exist" check.
     body_no_fences = re.sub(r"```.*?```", "", body, flags=re.DOTALL)
-    referenced = set(re.findall(r"`((?:scripts|references|assets)/[\w./\-]+\.\w+)`", body_no_fences))
+    # Match either backticked paths `scripts/...` or markdown links [text](scripts/...)
+    found_refs = set(re.findall(r"`((?:scripts|references|assets)/[\w./\-]+\.\w+)`", body_no_fences))
+    found_links = set(re.findall(r"\]\(((?:scripts|references|assets)/[\w./\-]+\.\w+)\)", body_no_fences))
+    referenced = found_refs | found_links
     stats["referenced_files"] = sorted(referenced)
 
     bundled = []

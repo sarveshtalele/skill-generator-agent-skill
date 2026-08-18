@@ -1,11 +1,12 @@
 # 📊 Skill Quality Scorecard
 
-> Auto-generated on 2026-08-18 06:24 UTC
+> Auto-generated on 2026-08-18 06:30 UTC
 
 | Skill | Score | Gate | Security | Functional | Lift | Trigger F1 |
 |:--|:--|:--|:--|:--|:--|:--|
 | `evaluator-skill` | 96.0/100 | ✅ PASS | 100.0 | 100.0 | 78.57142857142858 | 92.0 |
 | `skill-creator` | 96.0/100 | ✅ PASS | 100.0 | 100.0 | 78.57142857142858 | 92.0 |
+| `token-telemetry` | 96.0/100 | ✅ PASS | 100.0 | 100.0 | 78.57142857142858 | 92.0 |
 
 ---
 

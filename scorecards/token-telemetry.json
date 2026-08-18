@@ -1,0 +1,211 @@
+{
+  "skill_name": "token-telemetry",
+  "overall_score": 96.0,
+  "gate_decision": "PASS",
+  "dimensions": {
+    "spec_compliance": 100.0,
+    "content_quality": 100.0,
+    "functional_correctness": 100.0,
+    "skill_lift": 78.57142857142858,
+    "trigger_quality": 92.0,
+    "reliability": 100.0,
+    "efficiency": 100.0,
+    "security": 100.0
+  },
+  "structural": {
+    "skill_name": "token-telemetry",
+    "structural_score": 100,
+    "issues": [],
+    "stats": {
+      "skillmd_lines": 73,
+      "referenced_files": [
+        "references/pricing_models.md",
+        "references/schemas.md",
+        "scripts/token_tracker.py"
+      ],
+      "missing_referenced_files": [],
+      "bundled_files_not_referenced": []
+    }
+  },
+  "security": {
+    "skill_path": "skills/token-telemetry",
+    "components": [
+      {
+        "file": "testing.md",
+        "type": "md",
+        "lines": 66,
+        "executable": false
+      },
+      {
+        "file": "manifest.yaml",
+        "type": "yaml",
+        "lines": 24,
+        "executable": false
+      },
+      {
+        "file": "SKILL.md",
+        "type": "md",
+        "lines": 73,
+        "executable": false
+      },
+      {
+        "file": "skill-card.json",
+        "type": "json",
+        "lines": 68,
+        "executable": false
+      },
+      {
+        "file": "evals/evals.json",
+        "type": "json",
+        "lines": 55,
+        "executable": false
+      },
+      {
+        "file": "references/schemas.md",
+        "type": "md",
+        "lines": 38,
+        "executable": false
+      },
+      {
+        "file": "references/pricing_models.md",
+        "type": "md",
+        "lines": 33,
+        "executable": false
+      },
+      {
+        "file": "scripts/token_tracker.py",
+        "type": "py",
+        "lines": 199,
+        "executable": true
+      }
+    ],
+    "findings": [],
+    "risk_score": 0,
+    "risk_severity": "LOW",
+    "recommendation": "SAFE"
+  },
+  "assertions": [
+    {
+      "assertion": "file:scripts/token_tracker.py",
+      "passed": true,
+      "evidence": "File scripts/token_tracker.py exists",
+      "type": "file"
+    },
+    {
+      "assertion": "file:references/pricing_models.md",
+      "passed": true,
+      "evidence": "File references/pricing_models.md exists",
+      "type": "file"
+    },
+    {
+      "assertion": "contains:token-telemetry",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(claude|token|cost|pricing|cache)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Calculates exact USD API cost and prompt cache hit ratio",
+      "passed": true,
+      "evidence": "Matched 6/6 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "file:references/pricing_models.md",
+      "passed": true,
+      "evidence": "File references/pricing_models.md exists",
+      "type": "file"
+    },
+    {
+      "assertion": "contains:claude-3-7-sonnet",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "contains:claude-3-5-haiku",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(3.00|0.80|15.00|cache)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Provides accurate per-million pricing rates for all Claude model families",
+      "passed": true,
+      "evidence": "Matched 8/8 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "file:references/schemas.md",
+      "passed": true,
+      "evidence": "File references/schemas.md exists",
+      "type": "file"
+    },
+    {
+      "assertion": "contains:TokenRecord",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(input_tokens|output_tokens|cache_hit_ratio)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Emits compliant JSON telemetry record with all required metrics",
+      "passed": true,
+      "evidence": "Matched 8/8 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "contains:SKILL.md",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "matches:(?i)(cache|ratio|optimization|strategy)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Recommends placing static instructions before dynamic turn context to maximize cache hits",
+      "passed": true,
+      "evidence": "Matched 11/11 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "file:scripts/token_tracker.py",
+      "passed": true,
+      "evidence": "File scripts/token_tracker.py exists",
+      "type": "file"
+    },
+    {
+      "assertion": "matches:(?i)(table|breakdown|throughput|total)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Executes deterministic token analysis CLI and outputs structured Markdown breakdown",
+      "passed": true,
+      "evidence": "Matched 8/8 keywords",
+      "type": "semantic"
+    }
+  ],
+  "baseline_lift": 0.35,
+  "mode": "standalone_full_ast"
+}

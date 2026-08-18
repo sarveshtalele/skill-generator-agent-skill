@@ -53,7 +53,7 @@ This document outlines the systematic verification lifecycle for the **`{skill_n
 
 ---
 
-## 🧑‍💻 Task 3: User Test Case Alignment & Confirmation
+## 💻 Task 3: User Test Case Alignment & Confirmation
 
 > ⚠️ **Action Required by User**: Review the generated test cases below. Once approved, mark the confirmation checkbox and proceed to Task 4.
 

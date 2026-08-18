@@ -133,7 +133,7 @@
       {
         "file": "scripts/structural_check.py",
         "type": "py",
-        "lines": 235,
+        "lines": 238,
         "executable": true
       },
       {
