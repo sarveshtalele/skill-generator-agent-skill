@@ -4,21 +4,20 @@
  * Skill Generator & Evaluator Multi-IDE Installer / Uninstaller
  *
  * Supported Workflows:
- *   1. Interactive Installer:
+ *   1. Interactive Installer (Prompts for IDE, Scope [Project vs Global], and Project Dir):
  *      npx github:sarveshtalele/skill-generator-agent-skill install
  *
  *   2. Direct 1-Line IDE Install:
- *      npx github:sarveshtalele/skill-generator-agent-skill install --target claude
- *      npx github:sarveshtalele/skill-generator-agent-skill install --target cursor
- *      npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity
- *      npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf
+ *      npx github:sarveshtalele/skill-generator-agent-skill install --target claude --scope project
+ *      npx github:sarveshtalele/skill-generator-agent-skill install --target cursor --dir ./my-app
+ *      npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --global
  *
  *   3. Specific Skill Install:
- *      npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude
+ *      npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude --scope project
  *      npx github:sarveshtalele/skill-generator-agent-skill install evaluator-skill --target cursor
  *
  *   4. Uninstall Skills:
- *      npx github:sarveshtalele/skill-generator-agent-skill uninstall --target claude
+ *      npx github:sarveshtalele/skill-generator-agent-skill uninstall --target claude --scope global
  *
  *   5. List Bundled Skills:
  *      npx github:sarveshtalele/skill-generator-agent-skill list
@@ -42,14 +41,14 @@ const BUNDLE_SKILLS = [
   {
     name: 'evaluator-skill',
     phase: 'Maintenance & Security',
-    desc: 'Audits agent skills on 8 quality dimensions, functional lift, and NVIDIA SkillSpector 17-category AST security.'
+    desc: 'Audits agent skills on 8 quality dimensions, functional lift, and NVIDIA SkillSpector 68-pattern AST security.'
   }
 ];
 
 function printBanner() {
   console.log('\n╔═════════════════════════════════════════════════════════════════════════╗');
   console.log('║       🤖 Skill Generator & Evaluator — Multi-IDE Installer              ║');
-  console.log('║   Spec: Agent Skills 1.0  •  Security: NVIDIA SkillSpector 17           ║');
+  console.log('║   Spec: Agent Skills 1.0  •  Security: NVIDIA SkillSpector 68           ║');
   console.log('╚═════════════════════════════════════════════════════════════════════════╝\n');
 }
 
@@ -63,24 +62,26 @@ function prompt(question) {
   });
 }
 
-function getIdeDestinationPath(target) {
+function getIdeDestinationPath(target, scope = 'project', projectDir = process.cwd()) {
   const home = os.homedir();
-  const cwd = process.cwd();
+  const baseDir = scope === 'global' ? home : path.resolve(projectDir);
 
   switch (target.toLowerCase()) {
     case 'claude':
     case 'claude-code':
-      return path.join(home, '.claude', 'skills');
+      return path.join(baseDir, '.claude', 'skills');
     case 'cursor':
-      return path.join(cwd, '.cursor', 'skills');
+      return path.join(baseDir, '.cursor', 'skills');
     case 'antigravity':
     case 'gemini':
-      return path.join(home, '.gemini', 'antigravity', 'skills');
+      return scope === 'global'
+        ? path.join(home, '.gemini', 'antigravity', 'skills')
+        : path.join(baseDir, '.gemini', 'skills');
     case 'windsurf':
-      return path.join(cwd, '.windsurf', 'skills');
+      return path.join(baseDir, '.windsurf', 'skills');
     case 'github':
     case 'copilot':
-      return path.join(cwd, '.github', 'skills');
+      return path.join(baseDir, '.github', 'skills');
     default:
       return null;
   }
@@ -138,21 +139,37 @@ async function installSkill(args) {
 
   let targetSkill = null;
   let targetIde = null;
+  let scope = null; // 'project' | 'global'
+  let projectDir = process.cwd();
 
+  // Parse CLI arguments
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--target' && args[i + 1]) {
+    const arg = args[i];
+    if (arg === '--target' && args[i + 1]) {
       targetIde = args[i + 1];
       i++;
-    } else if (!args[i].startsWith('-') && !['install', 'uninstall', 'list'].includes(args[i])) {
-      targetSkill = args[i];
+    } else if (arg === '--scope' && args[i + 1]) {
+      scope = args[i + 1].toLowerCase();
+      i++;
+    } else if (arg === '--global') {
+      scope = 'global';
+    } else if (arg === '--project') {
+      scope = 'project';
+    } else if ((arg === '--dir' || arg === '--path') && args[i + 1]) {
+      projectDir = args[i + 1];
+      scope = scope || 'project';
+      i++;
+    } else if (!arg.startsWith('-') && !['install', 'uninstall', 'list'].includes(arg)) {
+      targetSkill = arg;
     }
   }
 
+  // 1. Select IDE if not specified via CLI
   if (!targetIde) {
     console.log('Select target IDE / Agent environment:');
-    console.log('  1. Claude Code (~/.claude/skills/)');
+    console.log('  1. Claude Code (~/.claude/skills/ or .claude/skills/)');
     console.log('  2. Cursor (.cursor/skills/)');
-    console.log('  3. Antigravity / Gemini CLI (~/.gemini/antigravity/skills/)');
+    console.log('  3. Antigravity / Gemini CLI (~/.gemini/antigravity/skills/ or .gemini/skills/)');
     console.log('  4. Windsurf (.windsurf/skills/)');
     console.log('  5. GitHub Copilot (.github/skills/)');
 
@@ -166,7 +183,26 @@ async function installSkill(args) {
     }
   }
 
-  const destRoot = getIdeDestinationPath(targetIde);
+  // 2. Select Installation Scope if not specified via CLI
+  if (!scope) {
+    console.log('\nSelect installation scope:');
+    console.log(`  1. Project-level  -> Install inside a specific project/repository [Recommended]`);
+    console.log(`  2. Global-level   -> Install in user home directory (available across all projects)`);
+
+    const scopeChoice = await prompt('\nEnter choice (1-2) [default: 1]: ');
+    scope = scopeChoice === '2' ? 'global' : 'project';
+  }
+
+  // 3. Prompt for Project Directory if scope is project
+  if (scope === 'project' && !args.includes('--dir') && !args.includes('--path')) {
+    const cwdDisplay = process.cwd();
+    const customDir = await prompt(`\nEnter project directory [default: ${cwdDisplay}]: `);
+    if (customDir && customDir.trim()) {
+      projectDir = path.resolve(customDir.trim());
+    }
+  }
+
+  const destRoot = getIdeDestinationPath(targetIde, scope, projectDir);
   if (!destRoot) {
     console.error(`❌ Unsupported IDE target: ${targetIde}`);
     process.exit(1);
@@ -179,7 +215,8 @@ async function installSkill(args) {
     ? [targetSkill]
     : BUNDLE_SKILLS.map((s) => s.name);
 
-  console.log(`\n🚀 Installing skills into ${targetIde} (\x1b[32m${destRoot}\x1b[0m)...`);
+  console.log(`\n🚀 Installing skills into ${targetIde} (\x1b[33m${scope.toUpperCase()}\x1b[0m scope):`);
+  console.log(`   Destination: \x1b[32m${destRoot}\x1b[0m\n`);
 
   for (const skillName of skillsToInstall) {
     const src = path.join(skillsSourceRoot, skillName);
@@ -194,7 +231,7 @@ async function installSkill(args) {
     console.log(`  ✅ Installed \x1b[36m${skillName}\x1b[0m -> ${dest}`);
   }
 
-  console.log(`\n🎉 Installation complete! The skills are now active in \x1b[32m${targetIde}\x1b[0m.`);
+  console.log(`\n🎉 Installation complete! The skills are now active in \x1b[32m${targetIde}\x1b[0m (${scope} scope).`);
 }
 
 async function uninstallSkill(args) {
@@ -202,38 +239,68 @@ async function uninstallSkill(args) {
 
   let targetIde = null;
   let targetSkill = null;
-  let all = false;
+  let scope = null;
+  let projectDir = process.cwd();
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--target' && args[i + 1]) {
+    const arg = args[i];
+    if (arg === '--target' && args[i + 1]) {
       targetIde = args[i + 1];
       i++;
-    } else if (args[i] === '--all') {
-      all = true;
-    } else if (!args[i].startsWith('-') && !['install', 'uninstall', 'list'].includes(args[i])) {
-      targetSkill = args[i];
+    } else if (arg === '--scope' && args[i + 1]) {
+      scope = args[i + 1].toLowerCase();
+      i++;
+    } else if (arg === '--global') {
+      scope = 'global';
+    } else if (arg === '--project') {
+      scope = 'project';
+    } else if ((arg === '--dir' || arg === '--path') && args[i + 1]) {
+      projectDir = args[i + 1];
+      scope = scope || 'project';
+      i++;
+    } else if (!arg.startsWith('-') && !['install', 'uninstall', 'list'].includes(arg)) {
+      targetSkill = arg;
     }
   }
 
   if (!targetIde) {
     console.log('Select target IDE to uninstall from:');
-    console.log('  1. Claude Code (~/.claude/skills/)');
-    console.log('  2. Cursor (.cursor/skills/)');
-    console.log('  3. Antigravity (~/.gemini/antigravity/skills/)');
-    console.log('  4. Windsurf (.windsurf/skills/)');
+    console.log('  1. Claude Code');
+    console.log('  2. Cursor');
+    console.log('  3. Antigravity / Gemini CLI');
+    console.log('  4. Windsurf');
+    console.log('  5. GitHub Copilot');
 
-    const choice = await prompt('\nEnter choice (1-4): ');
+    const choice = await prompt('\nEnter choice (1-5): ');
     switch (choice) {
       case '2': targetIde = 'cursor'; break;
       case '3': targetIde = 'antigravity'; break;
       case '4': targetIde = 'windsurf'; break;
+      case '5': targetIde = 'copilot'; break;
       default: targetIde = 'claude'; break;
     }
   }
 
-  const destRoot = getIdeDestinationPath(targetIde);
+  if (!scope) {
+    console.log('\nSelect scope to uninstall from:');
+    console.log('  1. Project-level');
+    console.log('  2. Global-level');
+
+    const scopeChoice = await prompt('\nEnter choice (1-2) [default: 1]: ');
+    scope = scopeChoice === '2' ? 'global' : 'project';
+  }
+
+  if (scope === 'project' && !args.includes('--dir') && !args.includes('--path')) {
+    const cwdDisplay = process.cwd();
+    const customDir = await prompt(`\nEnter project directory [default: ${cwdDisplay}]: `);
+    if (customDir && customDir.trim()) {
+      projectDir = path.resolve(customDir.trim());
+    }
+  }
+
+  const destRoot = getIdeDestinationPath(targetIde, scope, projectDir);
   if (!destRoot || !fs.existsSync(destRoot)) {
-    console.log(`ℹ️ No skills directory found for ${targetIde}.`);
+    console.log(`ℹ️ No skills directory found at ${destRoot}.`);
     return;
   }
 

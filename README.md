@@ -115,19 +115,17 @@ Install directly into your preferred AI coding environment using zero-install NP
 npx github:sarveshtalele/skill-generator-agent-skill install
 ```
 
-### Direct 1-Line IDE Commands:
+### Direct 1-Line IDE Commands (Project vs Global Scope):
 ```bash
-# 🟣 Anthropic Claude Code (~/.claude/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target claude
+# 📁 Project-Level (Current Repository / Specific Directory) [Recommended]
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude --scope project
+npx github:sarveshtalele/skill-generator-agent-skill install --target cursor --dir ./my-app
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --project
+npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf --dir /path/to/repo
 
-# 🔵 Cursor IDE (.cursor/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target cursor
-
-# 🔴 Google Antigravity / Gemini CLI (~/.gemini/antigravity/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity
-
-# 🟢 Codeium Windsurf (.windsurf/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf
+# 🌐 Global-Level (User Home Directory - Available Everywhere)
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude --global
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --global
 ```
 
 ---

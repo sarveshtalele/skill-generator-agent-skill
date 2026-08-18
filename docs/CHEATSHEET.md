@@ -22,18 +22,19 @@
 # 1. Interactive Multi-IDE Installer
 npx github:sarveshtalele/skill-generator-agent-skill install
 
-# 2. Direct 1-Line IDE Install:
-npx github:sarveshtalele/skill-generator-agent-skill install --target claude        # Claude Code (~/.claude/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target cursor        # Cursor (.cursor/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity   # Antigravity (~/.gemini/antigravity/skills/)
-npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf      # Windsurf (.windsurf/skills/)
+# 2. Direct 1-Line IDE Install (Project vs Global):
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude --scope project # Project-level (.claude/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target cursor --dir ./my-app  # Target project dir (.cursor/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --global   # Global-level (~/.gemini/antigravity/skills/)
+npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf --project     # Project-level (.windsurf/skills/)
 
 # 3. Install a Specific Skill
-npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude
-npx github:sarveshtalele/skill-generator-agent-skill install evaluator-skill --target cursor
+npx github:sarveshtalele/skill-generator-agent-skill install skill-creator --target claude --scope project
+npx github:sarveshtalele/skill-generator-agent-skill install evaluator-skill --target cursor --dir ./my-app
 
 # 4. Uninstall
-npx github:sarveshtalele/skill-generator-agent-skill uninstall
+npx github:sarveshtalele/skill-generator-agent-skill uninstall --target claude --scope project
+npx github:sarveshtalele/skill-generator-agent-skill uninstall --target antigravity --global
 ```
 
 ---

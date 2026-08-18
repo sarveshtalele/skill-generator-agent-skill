@@ -13,20 +13,23 @@ The fastest way to install or update the skills across any IDE on macOS, Linux, 
 npx github:sarveshtalele/skill-generator-agent-skill install
 ```
 
-### Direct 1-Line Commands by Target IDE:
+### Interactive Prompt Flow:
+1. **Target IDE Selection**: Choose between Claude Code, Cursor, Antigravity, Windsurf, or Copilot.
+2. **Scope Selection**: Choose between **Project-level** (inside a specific repo) or **Global-level** (`~/.<ide>/skills/`).
+3. **Project Directory**: Confirm or customize target workspace directory (defaults to current working directory).
+
+### Direct 1-Line Commands (Project vs Global Scope):
 
 ```bash
-# 🟣 Anthropic Claude Code
-npx github:sarveshtalele/skill-generator-agent-skill install --target claude
+# 📁 Project-Level Installation (Current Workspace / Repo) [Recommended]
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude --scope project
+npx github:sarveshtalele/skill-generator-agent-skill install --target cursor --dir ./my-project
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --project
+npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf --dir /path/to/repo
 
-# 🔵 Cursor IDE
-npx github:sarveshtalele/skill-generator-agent-skill install --target cursor
-
-# 🔴 Google Antigravity / Gemini CLI
-npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity
-
-# 🟢 Codeium Windsurf
-npx github:sarveshtalele/skill-generator-agent-skill install --target windsurf
+# 🌐 Global Installation (Available across all projects in user home dir)
+npx github:sarveshtalele/skill-generator-agent-skill install --target claude --global
+npx github:sarveshtalele/skill-generator-agent-skill install --target antigravity --global
 ```
 
 ---

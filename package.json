@@ -5,7 +5,8 @@
   "type": "module",
   "bin": {
     "skill-generator": "./bin/install.js",
-    "skill-creator": "./bin/install.js"
+    "skill-creator": "./bin/install.js",
+    "skill-generator-agent-skill": "./bin/install.js"
   },
   "keywords": [
     "agent-skills",
