@@ -243,8 +243,6 @@ Explore detailed technical documentation across all domains:
 | 🏗️ **[docs/SPEC_DRIVEN_DEVELOPMENT.md](docs/SPEC_DRIVEN_DEVELOPMENT.md)** | 4-Phase SDD bundle architecture (`specify`, `plan`, `implement`, `verify`) |
 | 📘 **[EVALUATION_GUIDE.md](EVALUATION_GUIDE.md)** | RAGAS 8-dimension evaluation guide, scoring math, and assertion syntax |
 | ⚡ **[docs/CHEATSHEET.md](docs/CHEATSHEET.md)** | Complete multi-platform command & debugging cheat-sheet |
-| 📋 **[docs/Agent_skills-checklist.md](docs/Agent_skills-checklist.md)** | Actionable 8-task skill authoring checklist |
-| 🛡️ **[docs/COMPLIANCE_AUDIT_REPORT.md](docs/COMPLIANCE_AUDIT_REPORT.md)** | Formal Spec 1.0 & SkillSpector compliance certification |
 | 🤝 **[CONTRIBUTING.md](CONTRIBUTING.md)** | Developer workflow, PR checklist, and quality gate criteria |
 | 📊 **[SCORECARD.md](SCORECARD.md)** | Centralized portfolio quality scorecards |
 | 📦 **[SKILL_REGISTRY.md](SKILL_REGISTRY.md)** | Complete indexed skill catalog |
@@ -276,9 +274,7 @@ skill-generator-agent-skill/
 │   ├── SECURITY_WHITEPAPER.md                 # Threat model & AST taint analysis
 │   ├── MULTI_IDE_SETUP.md                     # Setup for Claude, Cursor, Antigravity, Windsurf
 │   ├── SPEC_DRIVEN_DEVELOPMENT.md             # 4-Phase SDD bundle guide
-│   ├── CHEATSHEET.md                          # Complete command cheat-sheet
-│   ├── Agent_skills-checklist.md              # 8-task authoring checklist
-│   └── COMPLIANCE_AUDIT_REPORT.md             # Spec 1.0 compliance certification
+│   └── CHEATSHEET.md                          # Complete command cheat-sheet
 ├── scorecards/
 │   ├── skill-creator.{md,json}                # Quality Score: 96.0/100 (✅ PASS)
 │   └── evaluator-skill.{md,json}              # Quality Score: 96.0/100 (✅ PASS)
