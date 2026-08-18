@@ -2,53 +2,53 @@
   "skill_name": "token-telemetry",
   "evals": [
     {
-      "id": "eval-1-basic-telemetry",
-      "prompt": "Analyze Claude token telemetry from session log and compute estimated USD cost.",
+      "id": "eval-1-dual-currency-costs",
+      "prompt": "Analyze token telemetry and calculate total spend simultaneously in USD ($) and INR (₹).",
       "assertions": [
         "file:scripts/token_tracker.py",
         "file:references/pricing_models.md",
         "contains:token-telemetry",
-        "matches:(?i)(claude|token|cost|pricing|cache)",
-        "Calculates exact USD API cost and prompt cache hit ratio"
+        "matches:(?i)(USD|INR|₹|\\$|87\\.50|pricing)",
+        "Calculates exact LLM costs in both USD and INR using current conversion rates"
       ]
     },
     {
-      "id": "eval-2-pricing-models",
-      "prompt": "Compare token pricing rates between Claude 3.7 Sonnet, Claude 3.5 Haiku, and Claude 3 Opus.",
-      "assertions": [
-        "file:references/pricing_models.md",
-        "contains:claude-3-7-sonnet",
-        "contains:claude-3-5-haiku",
-        "matches:(?i)(3.00|0.80|15.00|cache)",
-        "Provides accurate per-million pricing rates for all Claude model families"
-      ]
-    },
-    {
-      "id": "eval-3-json-export",
-      "prompt": "Export token telemetry record in standard JSON format matching schema.",
-      "assertions": [
-        "file:references/schemas.md",
-        "contains:TokenRecord",
-        "matches:(?i)(input_tokens|output_tokens|cache_hit_ratio)",
-        "Emits compliant JSON telemetry record with all required metrics"
-      ]
-    },
-    {
-      "id": "eval-4-cache-optimization",
-      "prompt": "Explain how to diagnose low prompt cache hit ratio and optimize prompt ordering.",
-      "assertions": [
-        "contains:SKILL.md",
-        "matches:(?i)(cache|ratio|optimization|strategy)",
-        "Recommends placing static instructions before dynamic turn context to maximize cache hits"
-      ]
-    },
-    {
-      "id": "eval-5-cli-execution",
-      "prompt": "Run the bundled token tracker script to parse session metrics and generate a Markdown table.",
+      "id": "eval-2-multi-agent-global-scan",
+      "prompt": "Scan global agent logs across Claude Code, Gemini CLI, Cursor, and Hermes Agent.",
       "assertions": [
         "file:scripts/token_tracker.py",
-        "matches:(?i)(table|breakdown|throughput|total)",
-        "Executes deterministic token analysis CLI and outputs structured Markdown breakdown"
+        "matches:(?i)(claude|gemini|cursor|hermes|global)",
+        "contains:SessionTelemetry",
+        "Auto-detects and aggregates session logs across all installed agent runtimes"
+      ]
+    },
+    {
+      "id": "eval-3-interactive-web-dashboard",
+      "prompt": "Launch local zero-dependency web dashboard on port 3000.",
+      "assertions": [
+        "file:scripts/serve_dashboard.py",
+        "file:assets/dashboard.html",
+        "matches:(?i)(dashboard|localhost|3000|http\\.server|serve)",
+        "Serves interactive responsive dashboard with per-project heatmaps and tool waterfalls"
+      ]
+    },
+    {
+      "id": "eval-4-budget-alert-threshold",
+      "prompt": "Set project spending budget limit and trigger warning alert when spend reaches 80% and 100%.",
+      "assertions": [
+        "file:scripts/token_tracker.py",
+        "matches:(?i)(budget|alert|warning|threshold|limit)",
+        "Monitors budget limits and flags observational alerts at 80% and 100% thresholds"
+      ]
+    },
+    {
+      "id": "eval-5-tool-waterfall-analytics",
+      "prompt": "Track and summarize tool call frequencies and reasoning token metrics across sessions.",
+      "assertions": [
+        "file:references/schemas.md",
+        "contains:tool_calls",
+        "matches:(?i)(tool|waterfall|frequency|reasoning|tokens_per_second)",
+        "Emits complete tool call waterfall analytics and throughput statistics"
       ]
     }
   ]

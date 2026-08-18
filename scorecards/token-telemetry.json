@@ -17,10 +17,12 @@
     "structural_score": 100,
     "issues": [],
     "stats": {
-      "skillmd_lines": 73,
+      "skillmd_lines": 75,
       "referenced_files": [
+        "assets/dashboard.html",
         "references/pricing_models.md",
         "references/schemas.md",
+        "scripts/serve_dashboard.py",
         "scripts/token_tracker.py"
       ],
       "missing_referenced_files": [],
@@ -45,7 +47,7 @@
       {
         "file": "SKILL.md",
         "type": "md",
-        "lines": 73,
+        "lines": 75,
         "executable": false
       },
       {
@@ -63,19 +65,25 @@
       {
         "file": "references/schemas.md",
         "type": "md",
-        "lines": 38,
+        "lines": 53,
         "executable": false
       },
       {
         "file": "references/pricing_models.md",
         "type": "md",
-        "lines": 33,
+        "lines": 56,
         "executable": false
+      },
+      {
+        "file": "scripts/serve_dashboard.py",
+        "type": "py",
+        "lines": 30,
+        "executable": true
       },
       {
         "file": "scripts/token_tracker.py",
         "type": "py",
-        "lines": 199,
+        "lines": 961,
         "executable": true
       }
     ],
@@ -104,43 +112,79 @@
       "type": "contains"
     },
     {
-      "assertion": "matches:(?i)(claude|token|cost|pricing|cache)",
+      "assertion": "matches:(?i)(USD|INR|\u20b9|\\$|87\\.50|pricing)",
       "passed": true,
       "evidence": "Regex matched output",
       "type": "matches"
     },
     {
-      "assertion": "Calculates exact USD API cost and prompt cache hit ratio",
+      "assertion": "Calculates exact LLM costs in both USD and INR using current conversion rates",
       "passed": true,
-      "evidence": "Matched 6/6 keywords",
+      "evidence": "Matched 8/8 keywords",
       "type": "semantic"
     },
     {
-      "assertion": "file:references/pricing_models.md",
+      "assertion": "file:scripts/token_tracker.py",
       "passed": true,
-      "evidence": "File references/pricing_models.md exists",
+      "evidence": "File scripts/token_tracker.py exists",
       "type": "file"
     },
     {
-      "assertion": "contains:claude-3-7-sonnet",
-      "passed": true,
-      "evidence": "Text found in output",
-      "type": "contains"
-    },
-    {
-      "assertion": "contains:claude-3-5-haiku",
-      "passed": true,
-      "evidence": "Text found in output",
-      "type": "contains"
-    },
-    {
-      "assertion": "matches:(?i)(3.00|0.80|15.00|cache)",
+      "assertion": "matches:(?i)(claude|gemini|cursor|hermes|global)",
       "passed": true,
       "evidence": "Regex matched output",
       "type": "matches"
     },
     {
-      "assertion": "Provides accurate per-million pricing rates for all Claude model families",
+      "assertion": "contains:SessionTelemetry",
+      "passed": true,
+      "evidence": "Text found in output",
+      "type": "contains"
+    },
+    {
+      "assertion": "Auto-detects and aggregates session logs across all installed agent runtimes",
+      "passed": true,
+      "evidence": "Matched 8/8 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "file:scripts/serve_dashboard.py",
+      "passed": true,
+      "evidence": "File scripts/serve_dashboard.py exists",
+      "type": "file"
+    },
+    {
+      "assertion": "file:assets/dashboard.html",
+      "passed": true,
+      "evidence": "File assets/dashboard.html exists",
+      "type": "file"
+    },
+    {
+      "assertion": "matches:(?i)(dashboard|localhost|3000|http\\.server|serve)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Serves interactive responsive dashboard with per-project heatmaps and tool waterfalls",
+      "passed": true,
+      "evidence": "Matched 9/9 keywords",
+      "type": "semantic"
+    },
+    {
+      "assertion": "file:scripts/token_tracker.py",
+      "passed": true,
+      "evidence": "File scripts/token_tracker.py exists",
+      "type": "file"
+    },
+    {
+      "assertion": "matches:(?i)(budget|alert|warning|threshold|limit)",
+      "passed": true,
+      "evidence": "Regex matched output",
+      "type": "matches"
+    },
+    {
+      "assertion": "Monitors budget limits and flags observational alerts at 80% and 100% thresholds",
       "passed": true,
       "evidence": "Matched 8/8 keywords",
       "type": "semantic"
@@ -152,55 +196,19 @@
       "type": "file"
     },
     {
-      "assertion": "contains:TokenRecord",
+      "assertion": "contains:tool_calls",
       "passed": true,
       "evidence": "Text found in output",
       "type": "contains"
     },
     {
-      "assertion": "matches:(?i)(input_tokens|output_tokens|cache_hit_ratio)",
+      "assertion": "matches:(?i)(tool|waterfall|frequency|reasoning|tokens_per_second)",
       "passed": true,
       "evidence": "Regex matched output",
       "type": "matches"
     },
     {
-      "assertion": "Emits compliant JSON telemetry record with all required metrics",
-      "passed": true,
-      "evidence": "Matched 8/8 keywords",
-      "type": "semantic"
-    },
-    {
-      "assertion": "contains:SKILL.md",
-      "passed": true,
-      "evidence": "Text found in output",
-      "type": "contains"
-    },
-    {
-      "assertion": "matches:(?i)(cache|ratio|optimization|strategy)",
-      "passed": true,
-      "evidence": "Regex matched output",
-      "type": "matches"
-    },
-    {
-      "assertion": "Recommends placing static instructions before dynamic turn context to maximize cache hits",
-      "passed": true,
-      "evidence": "Matched 11/11 keywords",
-      "type": "semantic"
-    },
-    {
-      "assertion": "file:scripts/token_tracker.py",
-      "passed": true,
-      "evidence": "File scripts/token_tracker.py exists",
-      "type": "file"
-    },
-    {
-      "assertion": "matches:(?i)(table|breakdown|throughput|total)",
-      "passed": true,
-      "evidence": "Regex matched output",
-      "type": "matches"
-    },
-    {
-      "assertion": "Executes deterministic token analysis CLI and outputs structured Markdown breakdown",
+      "assertion": "Emits complete tool call waterfall analytics and throughput statistics",
       "passed": true,
       "evidence": "Matched 8/8 keywords",
       "type": "semantic"

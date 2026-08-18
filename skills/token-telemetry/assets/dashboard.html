@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokenTelemetry — Local AI Agent Observability Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-bright: #ffffff;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .title-group h1 { font-size: 24px; color: var(--text-bright); display: flex; align-items: center; gap: 10px; }
+    .title-group p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .currency-selector { display: flex; gap: 8px; align-items: center; background: var(--card-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); }
+    .currency-btn { background: transparent; border: 1px solid transparent; color: var(--text-muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; }
+    .currency-btn.active { background: var(--accent); color: #fff; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+    .card-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+    .card-value { font-size: 26px; font-weight: 700; color: var(--text-bright); margin-top: 6px; }
+    .card-sub { font-size: 12px; color: var(--green); margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 24px; }
+    th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
+    th { background: #21262d; color: var(--text-bright); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title-group">
+      <h1>⚡ TokenTelemetry Dashboard</h1>
+      <p>Local Observability for Claude Code, Gemini CLI, Cursor, & Hermes Agent (Dual Currency: USD $ / INR ₹)</p>
+    </div>
+  </div>
+  <div class="grid-cards">
+    <div class="card"><div class="card-label">Total Spend</div><div class="card-value">$0.00 <span style="font-size:16px; color:var(--text-muted);">/ ₹0.00</span></div></div>
+    <div class="card"><div class="card-label">Total Tokens</div><div class="card-value">0</div></div>
+    <div class="card"><div class="card-label">Cache Hit %</div><div class="card-value" style="color:var(--accent);">0.0%</div></div>
+  </div>
+</body>
+</html>

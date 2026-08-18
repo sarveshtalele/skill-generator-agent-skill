@@ -1,32 +1,55 @@
-# 💰 Anthropic Claude Model Pricing Catalog & Cost Calculation Formulas
+# 💰 Multi-Model Pricing Catalog & Dual-Currency Formulas (USD & INR)
 
-This document defines the official pricing rates and formula models for Claude 3, 3.5, and 3.7 families.
+This reference documents the official per-million token rates in both **USD ($)** and **INR (₹)** based on the standard conversion rate of **1 USD = 87.50 INR**.
 
 ---
 
-## 📊 Standard Rates (USD per Million Tokens)
+## 📊 Standard Unit Rates (per 1,000,000 Tokens)
 
-| Model Family | Model Key | Base Input ($/1M) | Output / Completion ($/1M) | Prompt Cache Read ($/1M) | Prompt Cache Write ($/1M) |
+### 🟣 Anthropic Claude Family
+
+| Model Name | Model Identifier | Input Rate ($ / ₹) | Output Rate ($ / ₹) | Cache Read Rate ($ / ₹) | Cache Write Rate ($ / ₹) |
 |:---|:---|:---:|:---:|:---:|:---:|
-| **Claude 3.7 Sonnet** | `claude-3-7-sonnet` | **$3.00** | **$15.00** | **$0.30** *(90% off)* | **$3.75** *(1.25x base)* |
-| **Claude 3.5 Sonnet** | `claude-3-5-sonnet` | **$3.00** | **$15.00** | **$0.30** *(90% off)* | **$3.75** *(1.25x base)* |
-| **Claude 3.5 Haiku** | `claude-3-5-haiku` | **$0.80** | **$4.00** | **$0.08** *(90% off)* | **$1.00** *(1.25x base)* |
-| **Claude 3 Opus** | `claude-3-opus` | **$15.00** | **$75.00** | **$1.50** *(90% off)* | **$18.75** *(1.25x base)* |
+| **Claude 3.7 Sonnet** | `claude-3-7-sonnet` | **$3.00** *(₹262.50)* | **$15.00** *(₹1,312.50)* | **$0.30** *(₹26.25)* | **$3.75** *(₹328.13)* |
+| **Claude 3.5 Sonnet** | `claude-3-5-sonnet` | **$3.00** *(₹262.50)* | **$15.00** *(₹1,312.50)* | **$0.30** *(₹26.25)* | **$3.75** *(₹328.13)* |
+| **Claude 3.5 Haiku** | `claude-3-5-haiku` | **$0.80** *(₹70.00)* | **$4.00** *(₹350.00)* | **$0.08** *(₹7.00)* | **$1.00** *(₹87.50)* |
+| **Claude 3 Opus** | `claude-3-opus` | **$15.00** *(₹1,312.50)* | **$75.00** *(₹6,562.50)* | **$1.50** *(₹131.25)* | **$18.75** *(₹1,640.63)* |
 
 ---
 
-## 🧮 Mathematical Cost Formula
+### 🟢 Google Gemini Family (Antigravity)
 
-$$\text{Total Cost} = \left(\frac{T_{\text{in}}}{10^6} \times P_{\text{in}}\right) + \left(\frac{T_{\text{out}}}{10^6} \times P_{\text{out}}\right) + \left(\frac{T_{\text{read}}}{10^6} \times P_{\text{read}}\right) + \left(\frac{T_{\text{write}}}{10^6} \times P_{\text{write}}\right)$$
-
-Where:
-- $T_{\text{in}}$: Non-cached prompt tokens
-- $T_{\text{out}}$: Generated completion tokens
-- $T_{\text{read}}$: Cache read tokens (90% cost savings)
-- $T_{\text{write}}$: Cache creation tokens (5-minute TTL)
+| Model Name | Model Identifier | Input Rate ($ / ₹) | Output Rate ($ / ₹) | Cache Read Rate ($ / ₹) | Cache Write Rate ($ / ₹) |
+|:---|:---|:---:|:---:|:---:|:---:|
+| **Gemini 2.0 Pro** | `gemini-2-0-pro` | **$1.25** *(₹109.38)* | **$5.00** *(₹437.50)* | **$0.31** *(₹27.13)* | **$1.25** *(₹109.38)* |
+| **Gemini 2.0 Flash** | `gemini-2-0-flash` | **$0.10** *(₹8.75)* | **$0.40** *(₹35.00)* | **$0.025** *(₹2.19)* | **$0.10** *(₹8.75)* |
+| **Gemini 1.5 Pro** | `gemini-1-5-pro` | **$1.25** *(₹109.38)* | **$5.00** *(₹437.50)* | **$0.31** *(₹27.13)* | **$1.25** *(₹109.38)* |
 
 ---
 
-## 📈 Cache Hit Efficiency Metric
+### 🔵 OpenAI GPT Family
 
-$$\text{Cache Hit Ratio (\%)} = \frac{T_{\text{read}}}{T_{\text{in}} + T_{\text{read}}} \times 100$$
+| Model Name | Model Identifier | Input Rate ($ / ₹) | Output Rate ($ / ₹) | Cache Read Rate ($ / ₹) | Cache Write Rate ($ / ₹) |
+|:---|:---|:---:|:---:|:---:|:---:|
+| **GPT-4o** | `gpt-4o` | **$2.50** *(₹218.75)* | **$10.00** *(₹875.00)* | **$1.25** *(₹109.38)* | **$2.50** *(₹218.75)* |
+| **GPT-4o mini** | `gpt-4o-mini` | **$0.15** *(₹13.13)* | **$0.60** *(₹52.50)* | **$0.075** *(₹6.56)* | **$0.15** *(₹13.13)* |
+
+---
+
+### 🔴 Nous Research Hermes Agent
+
+| Model Name | Model Identifier | Input Rate ($ / ₹) | Output Rate ($ / ₹) | Cache Read Rate ($ / ₹) | Cache Write Rate ($ / ₹) |
+|:---|:---|:---:|:---:|:---:|:---:|
+| **Hermes 3 405B** | `hermes-3-llama-3-1-405b` | **$1.50** *(₹131.25)* | **$3.00** *(₹262.50)* | **$0.50** *(₹43.75)* | **$1.50** *(₹131.25)* |
+| **Hermes 3 70B** | `hermes-3-llama-3-1-70b` | **$0.40** *(₹35.00)* | **$0.80** *(₹70.00)* | **$0.10** *(₹8.75)* | **$0.40** *(₹35.00)* |
+
+---
+
+## 🧮 Cost Calculation Formulas
+
+### USD Calculation:
+$$\text{Cost}_{\text{USD}} = \left(\frac{T_{\text{in}}}{10^6} \times P_{\text{in}}\right) + \left(\frac{T_{\text{out}}}{10^6} \times P_{\text{out}}\right) + \left(\frac{T_{\text{read}}}{10^6} \times P_{\text{read}}\right) + \left(\frac{T_{\text{write}}}{10^6} \times P_{\text{write}}\right)$$
+
+### INR Calculation:
+$$\text{Cost}_{\text{INR}} = \text{Cost}_{\text{USD}} \times R_{\text{INR/USD}}$$
+*(where $R_{\text{INR/USD}} = 87.50$ by default).*

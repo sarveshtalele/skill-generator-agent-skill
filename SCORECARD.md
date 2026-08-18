@@ -1,6 +1,6 @@
 # 📊 Skill Quality Scorecard
 
-> Auto-generated on 2026-08-18 06:30 UTC
+> Auto-generated on 2026-08-18 08:49 UTC
 
 | Skill | Score | Gate | Security | Functional | Lift | Trigger F1 |
 |:--|:--|:--|:--|:--|:--|:--|
